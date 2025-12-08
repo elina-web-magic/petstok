@@ -13,6 +13,7 @@
 		"prisma:migrate": "prisma migrate dev",
 		"prisma:generate": "prisma generate",
 		"prisma:studio": "prisma studio",
+		"postinstall": "prisma generate",
 		"prepare": "husky"
 	},
 	"dependencies": {
