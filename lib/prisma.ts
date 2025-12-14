@@ -2,13 +2,15 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma-client'
 import { Pool } from 'pg'
 
-if (!process.env.DATABASE_URL) {
-	throw new Error('DATABASE_URL is not defined')
-}
+const globalForPrisma = global as unknown as { prisma: PrismaClient | null }
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient }
+function createPrismaClient(): PrismaClient | null {
+	if (!process.env.DATABASE_URL) {
+		// biome-ignore lint/suspicious/noConsole: <explanation>
+		console.warn('DATABASE_URL is not defined, skipping Prisma client creation')
+		return null
+	}
 
-function createPrismaClient() {
 	const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 	const adapter = new PrismaPg(pool)
 
@@ -18,8 +20,8 @@ function createPrismaClient() {
 	})
 }
 
-export const prisma = globalForPrisma.prisma || createPrismaClient()
+export const prisma = globalForPrisma.prisma ?? createPrismaClient()
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && prisma) {
 	globalForPrisma.prisma = prisma
 }
