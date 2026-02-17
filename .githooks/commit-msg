@@ -1,0 +1,18 @@
+#!/bin/sh
+
+commit_msg_file="$1"
+commit_msg="$(head -n 1 "$commit_msg_file")"
+
+case "$commit_msg" in
+  New:\ *|Update:\ *|Fix:\ *)
+    exit 0
+    ;;
+  *)
+    echo "Error: Commit message must start with 'New:', 'Update:' or 'Fix:'"
+    echo "Example:"
+    echo "  New: add core feed layout"
+    echo "  Update: tweak video autoplay logic"
+    echo "  Fix: handle missing video thumbnail"
+    exit 1
+    ;;
+esac
