@@ -22,7 +22,8 @@
 			"@/*": ["./*"],
 			"@prisma": ["./lib/prisma.ts"],
 			"@prisma-client": ["./app/generated/prisma/client"]
-		}
+		},
+		"types": ["node"]
 	},
 	"include": [
 		"next-env.d.ts",
