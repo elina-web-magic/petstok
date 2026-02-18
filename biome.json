@@ -1,76 +1,73 @@
 {
-  "$schema": "https://biomejs.dev/schemas/latest/schema.json",
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
-  },
-  "files": {
-    "ignoreUnknown": false
-  },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "tab",
-    "indentWidth": 2,
-    "lineWidth": 100
-  },
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "a11y": {
-        "recommended": true,
-        "noSvgWithoutTitle": "error"
-      },
-      "complexity": {
-        "noForEach": "error",
-        "useArrowFunction": "error"
-      },
-      "suspicious": {
-        "noConsole": "warn",
-        "noEmptyBlock": "error",
-        "noExplicitAny": "error"
-      }
-    }
-  },
-  "css": {
-    "parser": {
-      "cssModules": true,
-      "tailwindDirectives": true
-    }
-  },
-  "javascript": {
-    "formatter": {
-      "indentStyle": "tab",
-      "indentWidth": 2,
-      "quoteStyle": "single",
-      "semicolons": "asNeeded",
-      "trailingCommas": "es5"
-    }
-  },
-  "overrides": [
-    {
-      "includes": [
-        "**/*.test.ts",
-        "**/*.spec.ts"
-      ],
-      "linter": {
-        "rules": {
-          "nursery": {
-            "noDuplicateDependencies": "error"
-          },
-          "suspicious": {
-            "noDuplicateObjectKeys": "warn"
-          }
-        }
-      }
-    }
-  ]
+	"$schema": "https://biomejs.dev/schemas/latest/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"ignoreUnknown": false
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineWidth": 100
+	},
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"a11y": {
+				"recommended": true,
+				"noSvgWithoutTitle": "error"
+			},
+			"complexity": {
+				"noForEach": "error",
+				"useArrowFunction": "error"
+			},
+			"suspicious": {
+				"noConsole": "warn",
+				"noEmptyBlock": "error",
+				"noExplicitAny": "error"
+			}
+		}
+	},
+	"css": {
+		"parser": {
+			"cssModules": true,
+			"tailwindDirectives": true
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"indentStyle": "tab",
+			"indentWidth": 2,
+			"quoteStyle": "single",
+			"semicolons": "asNeeded",
+			"trailingCommas": "es5"
+		}
+	},
+	"overrides": [
+		{
+			"includes": ["**/*.test.ts", "**/*.spec.ts"],
+			"linter": {
+				"rules": {
+					"nursery": {
+						"noDuplicateDependencies": "error"
+					},
+					"suspicious": {
+						"noDuplicateObjectKeys": "warn"
+					}
+				}
+			}
+		}
+	]
 }

@@ -1,12 +1,12 @@
 import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '@prisma-client'
+import { PrismaClient } from '@prisma/client'
 import { Pool } from 'pg'
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient | null }
 
 function createPrismaClient(): PrismaClient | null {
 	if (!process.env.DATABASE_URL) {
-		// biome-ignore lint/suspicious/noConsole: <explanation>
+		// biome-ignore lint/suspicious/noConsole: intentional server-side warning
 		console.warn('DATABASE_URL is not defined, skipping Prisma client creation')
 		return null
 	}

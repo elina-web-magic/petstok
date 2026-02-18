@@ -1,0 +1,5 @@
+{
+	"entry": ["app/**/*.{ts,tsx}"],
+	"project": ["**/*.{ts,tsx,js,mjs}"],
+	"ignoreDependencies": ["tailwindcss", "@biomejs/biome"]
+}
