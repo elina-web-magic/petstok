@@ -50,8 +50,13 @@ jobs:
       - name: Lint
         run: pnpm run lint
 
-      - name: Test (if present)
-        run: pnpm run test --if-present
+      - name: Test (only if script exists)
+        run: |
+          if pnpm -s run | grep -q "^test$"; then
+            pnpm run test
+          else
+            echo "No test script. Skipping."
+          fi
 
       - name: Build
         run: pnpm run build
