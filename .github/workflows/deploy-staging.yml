@@ -4,45 +4,62 @@ on:
   push:
     branches: ["develop"]
 
+concurrency:
+  group: deploy-staging-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Fail if package-lock.json exists
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "package-lock.json detected. This repo uses pnpm. Remove package-lock.json."
+            exit 1
+          fi
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-          cache: "npm"
-      - name: Enable pnpm via Corepack
+
+      - name: Enable Corepack
         run: corepack enable
 
-      - name: Install
-        run: npm ci
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
-      - name: Build
-        run: npm run build
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Install Vercel CLI
-        run: npm i -g vercel@latest
+        run: pnpm dlx vercel@latest --version
 
       - name: Pull Vercel config
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        run: pnpm dlx vercel@latest pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Vercel build
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        run: pnpm dlx vercel@latest build --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy to Vercel (staging)
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        run: pnpm dlx vercel@latest deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
