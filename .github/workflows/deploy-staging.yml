@@ -17,6 +17,8 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
+      - name: Enable pnpm via Corepack
+        run: corepack enable
 
       - name: Install
         run: npm ci
