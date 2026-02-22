@@ -59,12 +59,25 @@
 		{
 			"includes": ["**/*.test.ts", "**/*.spec.ts"],
 			"linter": {
+				"enabled": true,
 				"rules": {
-					"nursery": {
-						"noDuplicateDependencies": "error"
+					"recommended": true,
+					"correctness": {
+						"noUnusedVariables": "off",
+						"noUnusedFunctionParameters": "off"
+					},
+					"a11y": {
+						"recommended": true,
+						"noSvgWithoutTitle": "error"
+					},
+					"complexity": {
+						"noForEach": "error",
+						"useArrowFunction": "error"
 					},
 					"suspicious": {
-						"noDuplicateObjectKeys": "warn"
+						"noConsole": "warn",
+						"noEmptyBlock": "error",
+						"noExplicitAny": "error"
 					}
 				}
 			}

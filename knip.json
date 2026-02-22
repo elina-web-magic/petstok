@@ -1,5 +1,10 @@
 {
 	"entry": ["app/**/*.{ts,tsx}"],
 	"project": ["**/*.{ts,tsx,js,mjs}"],
-	"ignoreDependencies": ["tailwindcss", "@biomejs/biome"]
+	"ignore": ["components/ui/**"],
+	"rules": {
+		"dependencies": "off",
+		"devDependencies": "off",
+		"unlisted": "off"
+	}
 }
