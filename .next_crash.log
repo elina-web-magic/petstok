@@ -1,0 +1,37 @@
+
+> petstok@0.1.0 dev /Users/elinadzhelilova/Desktop/petstok
+> next dev
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/elinadzhelilova/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/elinadzhelilova/Desktop/petstok/pnpm-lock.yaml
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.68.65:3000
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 876ms
+(node:51053) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+prisma:query INSERT INTO "public"."User" ("email","password","createdAt","updatedAt") VALUES ($1,$2,$3,$4) RETURNING "public"."User"."id"
+prisma:query INSERT INTO "public"."Pet" ("userId","name","species","createdAt","updatedAt") VALUES ($1,$2,$3,$4,$5) RETURNING "public"."Pet"."id"
+prisma:query SELECT "public"."Pet"."id", "public"."Pet"."userId", "public"."Pet"."name", "public"."Pet"."species", "public"."Pet"."bio", "public"."Pet"."birthday", "public"."Pet"."createdAt", "public"."Pet"."updatedAt" FROM "public"."Pet" WHERE "public"."Pet"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query COMMIT
+prisma:query INSERT INTO "public"."Post" ("caption","videoUrl","likes","views","createdAt","updatedAt","petId","score") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "public"."Post"."id", "public"."Post"."videoUrl"
+prisma:query INSERT INTO "public"."Video" ("id","createdAt","updatedAt","url","title","aiTags","aiConfidence","aiDescription","moderationStatus","moderationReason","postId") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,CAST($9::text AS "public"."ModerationStatus"),$10,$11) RETURNING "public"."Video"."id", "public"."Video"."createdAt", "public"."Video"."updatedAt", "public"."Video"."url", "public"."Video"."title", "public"."Video"."aiTags", "public"."Video"."aiConfidence", "public"."Video"."aiDescription", "public"."Video"."moderationStatus"::text, "public"."Video"."moderationReason", "public"."Video"."postId"
+prisma:query SELECT "public"."Post"."id", "public"."Post"."videoUrl" FROM "public"."Post" WHERE ("public"."Post"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Video"."id", "public"."Video"."aiTags", "public"."Video"."aiConfidence", "public"."Video"."moderationStatus"::text, "public"."Video"."moderationReason", "public"."Video"."postId" FROM "public"."Video" WHERE "public"."Video"."postId" = $1 OFFSET $2
+ GET /api/dev/video-ai-smoke 200 in 3.5s (compile: 291ms, render: 3.2s)
+[?25h
