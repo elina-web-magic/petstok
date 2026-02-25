@@ -1,15 +1,17 @@
 import Link from 'next/link'
-import { TARGET_ORIGIN } from '@/components/embed/constants'
+import type { CSSProperties } from 'react'
 import EmbedResizeBridge from '@/components/embed/EmbedResizeBridge'
 import HostMessageDebug from '@/components/embed/HostMessageDebug'
 import { Button } from '@/components/ui/button'
-import { type Brand, brandStyles } from './styles'
+import { type Brand, brandStyles, brandVarsByBrandAndMode, themeVarsByMode } from './styles'
+import { getSafeTargetOrigin } from '@/components/embed/getSafeTargetOrigin'
 
 type EmbedSearchParams = {
 	channelId: string
 	video?: string
 	brand?: string
 	origin?: string
+	theme?: string
 }
 
 type EmbedFeedPageProps = {
@@ -22,15 +24,21 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 	const brand = typeof params?.brand === 'string' ? params.brand : 'petstok'
 	const originParam = typeof params.origin === 'string' ? params.origin : ''
 	const handshakeId = typeof params.channelId === 'string' ? params.channelId : ''
-	const safeOrigin = originParam === process.env.URL_DEVELOPMENT ? originParam : TARGET_ORIGIN
+	const safeOrigin = getSafeTargetOrigin(originParam);
 
 	const safeBrand: Brand = brand in brandStyles ? (brand as Brand) : 'petstok'
-	const styles = brandStyles[safeBrand]
+	const mode = params.theme === 'dark' ? 'dark' : 'light'
+	const themeVars = themeVarsByMode[mode]
+	const brandVars = brandVarsByBrandAndMode[safeBrand][mode]
+	const styleVars = { ...themeVars, ...brandVars } as CSSProperties
 
 	return (
-		<div className="EmbedFeedPageWrapper min-h-dvh bg-background text-foreground">
+		<div
+			style={styleVars}
+			className="EmbedFeedPageWrapper min-h-dvh bg-[var(--ps-bg)] text-[var(--ps-fg)] scheme-dark"
+		>
 			<div className="mx-auto w-full max-w-[550px] px-4 py-6">
-				<div className={`rounded-xl p-4 shadow-sm ${styles.frame}`}>
+				<div className={`rounded-xl p-4 shadow-sm bg-[var(--ps-card)]`}>
 					<div className="space-y-1">
 						<p className="text-xs text-muted-foreground">Embedded preview</p>
 						<h1 className="text-lg font-semibold">Petstok — Featured Pets</h1>
@@ -41,13 +49,16 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 					</div>
 
 					<div className="mt-4 space-y-3">
-						<div className="aspect-[9/16] w-full overflow-hidden rounded-lg bg-muted">
+						<div className="aspect-[9/16] w-full overflow-hidden rounded-lg bg-[var(--ps-muted)]">
 							<div className="flex h-full w-full items-center justify-center">
 								<p className="text-sm text-muted-foreground">Video placeholder</p>
 							</div>
 						</div>
 
-						<Button asChild className={`EmbedFeedPage-Button w-full ${styles.button}`}>
+						<Button
+							asChild
+							className="EmbedFeedPage-Button w-full bg-[var(--ps-primary)] text-[var(--ps-primary-fg)] border border-[var(--ps-border)]"
+						>
 							<Link href="/">Open in Petstok</Link>
 						</Button>
 					</div>
