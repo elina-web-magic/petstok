@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
 import EmbedResizeBridge from '@/components/embed/EmbedResizeBridge'
+import { getSafeTargetOrigin } from '@/components/embed/getSafeTargetOrigin'
 import HostMessageDebug from '@/components/embed/HostMessageDebug'
 import { Button } from '@/components/ui/button'
 import { type Brand, brandStyles, brandVarsByBrandAndMode, themeVarsByMode } from './styles'
-import { getSafeTargetOrigin } from '@/components/embed/getSafeTargetOrigin'
 
 type EmbedSearchParams = {
 	channelId: string
@@ -24,7 +24,7 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 	const brand = typeof params?.brand === 'string' ? params.brand : 'petstok'
 	const originParam = typeof params.origin === 'string' ? params.origin : ''
 	const handshakeId = typeof params.channelId === 'string' ? params.channelId : ''
-	const safeOrigin = getSafeTargetOrigin(originParam);
+	const safeOrigin = getSafeTargetOrigin(originParam)
 
 	const safeBrand: Brand = brand in brandStyles ? (brand as Brand) : 'petstok'
 	const mode = params.theme === 'dark' ? 'dark' : 'light'
