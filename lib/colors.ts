@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs))
 }
 
-export const hexToRgb = (hex: string): RGB | null => {
+const hexToRgb = (hex: string): RGB | null => {
 	const value = hex.trim().toLowerCase()
 	if (!/^#[0-9a-f]{6}$/.test(value)) return null
 

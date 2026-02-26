@@ -4,6 +4,7 @@ import EmbedResizeBridge from '@/components/embed/EmbedResizeBridge'
 import { getSafeTargetOrigin } from '@/components/embed/getSafeTargetOrigin'
 import HostMessageDebug from '@/components/embed/HostMessageDebug'
 import { Button } from '@/components/ui/button'
+import { luma } from '@/lib/colors'
 import { type Brand, brandStyles, brandVarsByBrandAndMode, themeVarsByMode } from './styles'
 
 type EmbedSearchParams = {
@@ -30,7 +31,18 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 	const mode = params.theme === 'dark' ? 'dark' : 'light'
 	const themeVars = themeVarsByMode[mode]
 	const brandVars = brandVarsByBrandAndMode[safeBrand][mode]
-	const styleVars = { ...themeVars, ...brandVars } as CSSProperties
+	const primary = brandVars['--ps-primary']
+	const computedPrimaryFg = primary.startsWith('#')
+		? luma(primary) === 'black'
+			? '#000000'
+			: '#ffffff'
+		: undefined
+
+	const styleVars = {
+		...themeVars,
+		...brandVars,
+		...(computedPrimaryFg && { '--ps-primary-fg': computedPrimaryFg }),
+	} as CSSProperties
 
 	return (
 		<div
