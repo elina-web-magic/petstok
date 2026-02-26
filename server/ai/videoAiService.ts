@@ -1,5 +1,5 @@
 import type { ModerationStatus as PrismaModerationStatus } from '@prisma/client'
-import { prisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import type { VideoAiAnalysisResult } from '@/server/ai/types'
 
 const clamp01 = (value: number): number => {
@@ -27,6 +27,8 @@ export const persistVideoAiAnalysis = async (input: {
 	postId: number
 	result: VideoAiAnalysisResult
 }) => {
+	const prisma = getPrisma()
+
 	const post = await prisma.post.findUnique({
 		where: { id: input.postId },
 		select: { id: true, videoUrl: true },

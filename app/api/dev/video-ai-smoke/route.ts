@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 
 export const runtime = 'nodejs'
 
@@ -8,6 +8,8 @@ const getErrorMessage = (error: unknown) => {
 }
 
 export const GET = async (): Promise<Response> => {
+	const prisma = getPrisma()
+
 	try {
 		const pet = await prisma.pet.create({
 			data: {
