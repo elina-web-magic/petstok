@@ -1,17 +1,11 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
-import EmbedResizeBridge from '@/components/embed/EmbedResizeBridge'
-import { getSafeTargetOrigin } from '@/components/embed/getSafeTargetOrigin'
-import HostMessageDebug from '@/components/embed/HostMessageDebug'
 import { Button } from '@/components/ui/button'
-import { luma } from '@/lib/colors'
-import { type Brand, brandStyles, brandVarsByBrandAndMode, themeVarsByMode } from './styles'
+import { type EmbedTheme, themeVarsByMode } from './styles'
 
 type EmbedSearchParams = {
-	channelId: string
+	userId?: string
 	video?: string
-	brand?: string
-	origin?: string
 	theme?: string
 }
 
@@ -19,44 +13,36 @@ type EmbedFeedPageProps = {
 	searchParams: Promise<EmbedSearchParams>
 }
 
+const getTheme = (value: string | undefined): EmbedTheme | 'auto' => {
+	if (value === 'dark') return 'dark'
+	if (value === 'light') return 'light'
+	return 'auto'
+}
+
 const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 	const params = (await searchParams) ?? {}
-	const videoId = typeof params?.video === 'string' ? params.video : 'demo'
-	const brand = typeof params?.brand === 'string' ? params.brand : 'petstok'
-	const originParam = typeof params.origin === 'string' ? params.origin : ''
-	const handshakeId = typeof params.channelId === 'string' ? params.channelId : ''
-	const safeOrigin = getSafeTargetOrigin(originParam)
 
-	const safeBrand: Brand = brand in brandStyles ? (brand as Brand) : 'petstok'
-	const mode = params.theme === 'dark' ? 'dark' : 'light'
-	const themeVars = themeVarsByMode[mode]
-	const brandVars = brandVarsByBrandAndMode[safeBrand][mode]
-	const primary = brandVars['--ps-primary']
-	const computedPrimaryFg = primary.startsWith('#')
-		? luma(primary) === 'black'
-			? '#000000'
-			: '#ffffff'
-		: undefined
+	const videoId = typeof params.video === 'string' ? params.video : 'demo'
+	const userId = typeof params.userId === 'string' ? params.userId : ''
+	const theme = getTheme(typeof params.theme === 'string' ? params.theme : undefined)
 
-	const styleVars = {
-		...themeVars,
-		...brandVars,
-		...(computedPrimaryFg && { '--ps-primary-fg': computedPrimaryFg }),
-	} as CSSProperties
+	const styleVars =
+		theme === 'auto' ? undefined : (themeVarsByMode[theme] as unknown as CSSProperties)
 
 	return (
 		<div
 			style={styleVars}
-			className="EmbedFeedPageWrapper min-h-dvh bg-[var(--ps-bg)] text-[var(--ps-fg)] scheme-dark"
+			className="EmbedFeedPageWrapper min-h-dvh bg-[var(--ps-bg)] text-[var(--ps-fg)]"
 		>
 			<div className="mx-auto w-full max-w-[550px] px-4 py-6">
-				<div className={`rounded-xl p-4 shadow-sm bg-[var(--ps-card)]`}>
+				<div className="rounded-xl bg-[var(--ps-card)] p-4 shadow-sm">
 					<div className="space-y-1">
 						<p className="text-xs text-muted-foreground">Embedded preview</p>
-						<h1 className="text-lg font-semibold">Petstok — Featured Pets</h1>
+						<h1 className="text-lg font-semibold">Petstok</h1>
 						<p className="text-sm text-muted-foreground">
-							Brand: <span className="font-medium text-foreground">{brand}</span> · Video:{' '}
-							<span className="font-medium text-foreground">{videoId}</span>
+							User: <span className="font-medium text-foreground">{userId || '—'}</span> · Video:{' '}
+							<span className="font-medium text-foreground">{videoId}</span> · Theme:{' '}
+							<span className="font-medium text-foreground">{theme}</span>
 						</p>
 					</div>
 
@@ -69,17 +55,16 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 
 						<Button
 							asChild
-							className="EmbedFeedPage-Button w-full bg-[var(--ps-primary)] text-[var(--ps-primary-fg)] border border-[var(--ps-border)]"
+							className="w-full border border-[var(--ps-border)] bg-[var(--ps-primary)] text-[var(--ps-primary-fg)]"
 						>
 							<Link href="/">Open in Petstok</Link>
 						</Button>
 					</div>
-					<EmbedResizeBridge targetOrigin={safeOrigin} channelId={handshakeId} />
-					<HostMessageDebug expectedChannelId={handshakeId} />
 
 					<div className="mt-4 border-t pt-3">
 						<p className="text-xs text-muted-foreground">
-							Tip: try <span className="font-medium">/embed/feed?brand=zalando&amp;video=123</span>
+							Tip: try{' '}
+							<span className="font-medium">/embed/feed?userId=1&amp;video=123&amp;theme=auto</span>
 						</p>
 					</div>
 				</div>

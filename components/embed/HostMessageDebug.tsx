@@ -7,7 +7,7 @@ type ResizeMessage = {
 	type: typeof MESSAGE_TYPE
 	height: number
 	version?: number
-	channelId: string
+	sessionId: string
 }
 
 const HostMessageDebug = ({ expectedChannelId }: { expectedChannelId: string }) => {
@@ -29,7 +29,7 @@ const HostMessageDebug = ({ expectedChannelId }: { expectedChannelId: string }) 
 		const onMessage = (event: MessageEvent<unknown>) => {
 			if (!allowedOrigins.has(event.origin)) return
 			if (!isResizeMessage(event.data)) return
-			if (event.data.channelId !== expectedChannelId) return
+			if (event.data.sessionId !== expectedChannelId) return
 
 			// biome-ignore lint/suspicious/noConsole: logging widget size for debug purposes
 			console.log('HOST accepted size', event.data.height)
