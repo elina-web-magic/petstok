@@ -114,6 +114,13 @@
 	--sidebar-accent-foreground: oklch(0.985 0.001 106.423);
 	--sidebar-border: oklch(1 0 0 / 10%);
 	--sidebar-ring: oklch(0.553 0.013 58.071);
+	--ps-bg: #ffffff;
+	--ps-fg: #0a0a0a;
+	--ps-card: #ffffff;
+	--ps-muted: #f4f4f5;
+	--ps-primary: #2563eb;
+	--ps-primary-fg: #ffffff;
+	--ps-border: rgba(0, 0, 0, 0.12);
 }
 
 @layer base {
@@ -123,5 +130,17 @@
 
 	body {
 		@apply bg-background text-foreground;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--ps-bg: #0a0a0a;
+		--ps-fg: #fafafa;
+		--ps-card: #111112;
+		--ps-muted: #1f1f22;
+		--ps-primary: #3b82f6;
+		--ps-primary-fg: #ffffff;
+		--ps-border: rgba(255, 255, 255, 0.16);
 	}
 }
