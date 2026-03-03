@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
+import AiDebugPanel from '@/components/ai/AiDebugPanel'
 import { Button } from '@/components/ui/button'
 import { type EmbedTheme, themeVarsByMode } from './styles'
 
@@ -52,6 +53,8 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 								<p className="text-sm text-muted-foreground">Video placeholder</p>
 							</div>
 						</div>
+
+						<AiDebugPanel />
 
 						<Button
 							asChild
