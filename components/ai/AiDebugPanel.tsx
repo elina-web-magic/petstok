@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Logger } from '@/lib/logger/logger'
+import { ConsoleSink } from '@/lib/logger/sinks'
 
 type AiResult = {
 	tags: string[]
@@ -17,6 +19,7 @@ type AiResult = {
 const AiDebugPanel = () => {
 	const [result, setResult] = useState<AiResult | null>(null)
 	const [loading, setLoading] = useState(false)
+	const logger = new Logger({ scope: 'ai', minLevel: 'debug', sinks: [new ConsoleSink()] })
 
 	const handleAnalyze = async () => {
 		setLoading(true)
@@ -46,9 +49,8 @@ const AiDebugPanel = () => {
 			const data = (await res.json()) as AiResult
 
 			setResult(data)
-		} catch (error) {
-			// biome-ignore lint/suspicious/noConsole: Log error for debugging
-			console.error(error)
+		} catch {
+			logger.child({ requestId: '123' }).info('Analyze started')
 			setResult(null)
 		} finally {
 			setLoading(false)
