@@ -3,7 +3,7 @@ import type { LogSink } from './sinks'
 
 import type { LogContext, LogEvent, LogLevel, SerializedError } from './types'
 
-export type LoggerOptions = {
+type LoggerOptions = {
 	scope: string
 	minLevel: LogLevel
 	defaultContext?: LogContext
