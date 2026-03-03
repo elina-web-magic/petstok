@@ -16,14 +16,25 @@ type AiResult = {
 	rationale: string
 }
 
+const logger = new Logger({
+	scope: 'ai',
+	minLevel: 'debug',
+	sinks: [new ConsoleSink()],
+})
+
 const AiDebugPanel = () => {
 	const [result, setResult] = useState<AiResult | null>(null)
 	const [loading, setLoading] = useState(false)
-	const logger = new Logger({ scope: 'ai', minLevel: 'debug', sinks: [new ConsoleSink()] })
+	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
 	const handleAnalyze = async () => {
 		setLoading(true)
+		setErrorMessage(null)
 
+		const requestId = String(Date.now())
+		const log = logger.child({ requestId })
+
+		log.info('Analyze started')
 		try {
 			const res = await fetch('/api/ai/pet-tags', {
 				method: 'POST',
@@ -49,9 +60,19 @@ const AiDebugPanel = () => {
 			const data = (await res.json()) as AiResult
 
 			setResult(data)
-		} catch {
-			logger.child({ requestId: '123' }).info('Analyze started')
+
+			log.info('Analyze success', {
+				tagsCount: data.tags.length,
+				isAlice: data.isAlice,
+				isBlindCat: data.isBlindCat,
+			})
+		} catch (error) {
 			setResult(null)
+
+			const message = error instanceof Error ? error.message : 'Unknown error'
+			setErrorMessage(message)
+
+			log.error('Analyze failed', { message }, error)
 		} finally {
 			setLoading(false)
 		}
@@ -67,7 +88,15 @@ const AiDebugPanel = () => {
 				</Button>
 			</div>
 
-			{!result && <p className="text-xs text-muted-foreground">Press Analyze to see result</p>}
+			{errorMessage && (
+				<div className="rounded-md border border-destructive/30 bg-destructive/10 p-2">
+					<p className="text-xs text-destructive">{errorMessage}</p>
+				</div>
+			)}
+
+			{!errorMessage && !result && (
+				<p className="text-xs text-muted-foreground">Press Analyze to see result</p>
+			)}
 
 			{result && (
 				<div className="text-xs space-y-2">
