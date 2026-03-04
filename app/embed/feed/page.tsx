@@ -1,10 +1,9 @@
-import Link from 'next/link'
 import type { CSSProperties } from 'react'
-import AiDebugPanel from '@/components/ai/AiDebugPanel'
-import { Button } from '@/components/ui/button'
+import DevUploadPage from '@/app/dev/ai/page'
+
 import { type EmbedTheme, themeVarsByMode } from './styles'
 
-type EmbedSearchParams = {
+export type EmbedSearchParams = {
 	userId?: string
 	video?: string
 	theme?: string
@@ -48,20 +47,11 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 					</div>
 
 					<div className="mt-4 space-y-3">
-						<div className="aspect-[9/16] w-full overflow-hidden rounded-lg bg-[var(--ps-muted)]">
-							<div className="flex h-full w-full items-center justify-center">
-								<p className="text-sm text-muted-foreground">Video placeholder</p>
-							</div>
+						<div className="flex h-full w-full items-center justify-center">
+							<DevUploadPage searchParams={params} />
 						</div>
 
-						<AiDebugPanel />
-
-						<Button
-							asChild
-							className="w-full border border-[var(--ps-border)] bg-[var(--ps-primary)] text-[var(--ps-primary-fg)]"
-						>
-							<Link href="/">Open in Petstok</Link>
-						</Button>
+						{/* <AiDebugPanel /> */}
 					</div>
 
 					<div className="mt-4 border-t pt-3">

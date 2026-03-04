@@ -1,5 +1,6 @@
 import { Logger } from '@/lib/logger/logger'
 import { ConsoleSink } from '@/lib/logger/sinks'
+import { isPetTagsRequestBody } from '@/server/utils/validation'
 
 export const runtime = 'nodejs'
 
@@ -8,28 +9,6 @@ const logger = new Logger({
 	minLevel: 'debug',
 	sinks: [new ConsoleSink()],
 })
-
-type PetTagsRequestBody = {
-	videoUrl: string
-	aliceReferenceImageUrls: string[]
-}
-
-const isPetTagsRequestBody = (value: unknown): value is PetTagsRequestBody => {
-	if (typeof value !== 'object' || value === null) return false
-
-	const obj = value as Record<string, unknown>
-
-	if (typeof obj.videoUrl !== 'string') return false
-	if (obj.videoUrl.length === 0) return false
-
-	if (!Array.isArray(obj.aliceReferenceImageUrls)) return false
-
-	for (const item of obj.aliceReferenceImageUrls) {
-		if (typeof item !== 'string') return false
-	}
-
-	return true
-}
 
 export const POST = async (req: Request): Promise<Response> => {
 	const requestId = String(Date.now())
@@ -49,16 +28,14 @@ export const POST = async (req: Request): Promise<Response> => {
 
 		log.info('Body validated', {
 			videoUrl: body.videoUrl,
-			referenceCount: body.aliceReferenceImageUrls.length,
+			referenceCount: body.animalReferenceImageUrls.length,
 		})
+
 		const mock = {
 			tags: ['#cat'],
-			isAlice: false,
-			isBlindCat: false,
-			confidence: {
-				alice: 0,
-				blindcat: 0,
-			},
+			animal: 'cat',
+			isBlind: true,
+			confidence: { animal: 0.85, blind: 0.95 },
 			rationale: 'Mock response',
 		}
 
