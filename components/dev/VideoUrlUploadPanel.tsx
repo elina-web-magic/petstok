@@ -4,7 +4,18 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { analyzeVideoMetadata } from '@/server/ai/actions/analyzeVideoMetadata'
 import { Textarea } from '../ui/textarea'
+
+type CreatePostResponse = {
+	ok: true
+	post: {
+		id: number
+		videoUrl: string
+		caption: string
+		petId: number
+	}
+}
 
 type AiResult = {
 	tags: string[]
@@ -25,38 +36,50 @@ const VideoUrlUploadPanel = () => {
 	const [result, setResult] = useState<AiResult | null>(null)
 	const [videoError, setVideoError] = useState(false)
 	const [showDetails, setShowDetails] = useState(false)
+	const [postId, setPostId] = useState<number | null>(null)
 
 	const handleAnalyze = async () => {
 		setLoading(true)
 		setErrorMessage(null)
 		setResult(null)
 		setShowDetails(false)
+		setPostId(null)
 
 		try {
-			const animalReferenceImageUrls = referenceUrlsText
-				.split('\n')
-				.map((s) => s.trim())
-				.filter((s) => s.length > 0)
-
-			const res = await fetch('/api/ai/pet-tags', {
+			const createRes = await fetch('/api/posts', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ videoUrl, animalReferenceImageUrls }),
+				body: JSON.stringify({ id: 123, videoUrl, caption: '', petId: 1 }),
 			})
 
-			if (!res.ok) {
-				const text = await res.text()
-				throw new Error(`AI route failed: ${text} ${res.status}`)
+			if (!createRes.ok) {
+				const text = await createRes.text()
+				throw new Error(`createRes ${text} ${createRes.status}`)
 			}
 
-			const data = (await res.json()) as AiResult
-			setResult(data)
+			const created = (await createRes.json()) as CreatePostResponse
+			setPostId(created.post.id)
+
+			const ai = await analyzeVideoMetadata({ postId: created.post.id })
+
+			if (!ai.ok) {
+				throw new Error(`Analyze video failed: ${ai.error}`)
+			}
+
+			setResult({
+				tags: ['#saved-to-db'],
+				animal: 'unknown',
+				isBlind: false,
+				confidence: { animal: 0, blind: 0 },
+				rationale: `Saved AI result. Moderation: ${ai.video?.moderationStatus}`,
+			})
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error'
 			setErrorMessage(message)
 			setResult(null)
+			setPostId(null)
 		} finally {
 			setLoading(false)
 		}
@@ -115,13 +138,11 @@ const VideoUrlUploadPanel = () => {
 				/>
 			</Field>
 
-			<Button
-				className="w-full"
-				onClick={handleAnalyze}
-				disabled={loading || videoUrl.trim().length === 0}
-			>
+			<Button className="w-full" onClick={handleAnalyze} disabled={loading}>
 				{loading ? 'Analyzing…' : 'Analyze with Vision'}
 			</Button>
+
+			{postId && <p className="text-xs text-muted-foreground">Post created #{postId}</p>}
 
 			{!errorMessage && !result && (
 				<p className="text-xs text-muted-foreground">Press Analyze to see result</p>
@@ -142,23 +163,6 @@ const VideoUrlUploadPanel = () => {
 							{result.animal === 'unknown' && <span>Unknown 🥺</span>}
 						</div>
 					</div>
-					<div className="text-muted-foreground">
-						<span className="font-medium text-foreground">Animal confidence:</span>{' '}
-						{result.confidence.animal}
-					</div>
-					{result.isBlind && (
-						<div>
-							<div className="flex items-center justify-between">
-								{result.confidence.blind && (
-									<div className="text-muted-foreground">
-										<span className="font-medium text-foreground">Blind confidence:</span>{' '}
-										{result.confidence.blind}
-									</div>
-								)}
-							</div>
-						</div>
-					)}
-
 					<Button
 						type="button"
 						variant="outline"
@@ -188,10 +192,6 @@ const VideoUrlUploadPanel = () => {
 							</div>
 						</div>
 					)}
-
-					<div className="pt-1 text-muted-foreground">
-						<span className="font-medium text-foreground">Rationale:</span> {result.rationale}
-					</div>
 				</div>
 			)}
 		</div>

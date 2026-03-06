@@ -1,7 +1,7 @@
 'use server'
 
-import type { VideoAiAnalysisResult } from '@/server/ai/types'
-import { persistVideoAiAnalysis } from '@/server/ai/videoAiService'
+import type { VideoAiAnalysisResult } from '@/server/ai/services/types'
+import { persistVideoAiAnalysis } from '@/server/ai/services/videoAiPersistenceService'
 
 export const analyzeVideoMetadata = async (input: { postId: number }) => {
 	const postId = input.postId

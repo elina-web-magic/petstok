@@ -1,5 +1,4 @@
 import type { CSSProperties } from 'react'
-import DevUploadPage from '@/app/dev/ai/page'
 
 import { type EmbedTheme, themeVarsByMode } from './styles'
 
@@ -43,21 +42,6 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 							User: <span className="font-medium text-foreground">{userId || '—'}</span> · Video:{' '}
 							<span className="font-medium text-foreground">{videoId}</span> · Theme:{' '}
 							<span className="font-medium text-foreground">{theme}</span>
-						</p>
-					</div>
-
-					<div className="mt-4 space-y-3">
-						<div className="flex h-full w-full items-center justify-center">
-							<DevUploadPage searchParams={params} />
-						</div>
-
-						{/* <AiDebugPanel /> */}
-					</div>
-
-					<div className="mt-4 border-t pt-3">
-						<p className="text-xs text-muted-foreground">
-							Tip: try{' '}
-							<span className="font-medium">/embed/feed?userId=1&amp;video=123&amp;theme=auto</span>
 						</p>
 					</div>
 				</div>

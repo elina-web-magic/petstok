@@ -1,6 +1,6 @@
 import type { ModerationStatus as PrismaModerationStatus } from '@prisma/client'
 import { getPrisma } from '@/lib/prisma'
-import type { VideoAiAnalysisResult } from '@/server/ai/types'
+import type { VideoAiAnalysisResult } from '@/server/ai/services/types'
 
 const clamp01 = (value: number): number => {
 	if (Number.isNaN(value)) return 0

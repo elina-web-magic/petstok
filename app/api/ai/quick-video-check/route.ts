@@ -1,11 +1,11 @@
 import { Logger } from '@/lib/logger/logger'
 import { ConsoleSink } from '@/lib/logger/sinks'
-import { isPetTagsRequestBody } from '@/server/utils/validation'
+import { isPetTagsRequestBody } from '@/server/ai/ai.validation'
 
 export const runtime = 'nodejs'
 
 const logger = new Logger({
-	scope: 'api:ai:pet-tags',
+	scope: 'api:ai:quick-video-check',
 	minLevel: 'debug',
 	sinks: [new ConsoleSink()],
 })

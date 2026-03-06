@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { Logger } from '@/lib/logger/logger'
 import { ConsoleSink } from '@/lib/logger/sinks'
 import { getPrisma } from '@/lib/prisma'
-import { isCreatePostBody } from '@/server/utils/validation'
+import { isCreatePostBody } from '@/server/posts/post.validation'
 
 export const runtime = 'nodejs'
 
@@ -28,9 +28,9 @@ export async function POST(req: Request): Promise<Response> {
 		const rawBody: unknown = await req.json()
 
 		if (!isCreatePostBody(rawBody)) {
-			log.warn('Invalid request body', { rawBody })
+			log.warn('Invalid request body post', { rawBody })
 
-			return Response.json({ error: 'Invalid request body' }, { status: 400 })
+			return Response.json({ error: 'Error while request body post' }, { status: 400 })
 		}
 
 		const { caption, videoUrl, petId } = rawBody
@@ -40,6 +40,7 @@ export async function POST(req: Request): Promise<Response> {
 		log.info('Body validated', {
 			videoUrl: videoUrlTrimmed,
 			caption: captionTrimmed,
+			petId: petId,
 		})
 
 		const created = await prisma.post.create({
@@ -56,7 +57,7 @@ export async function POST(req: Request): Promise<Response> {
 			},
 		})
 
-		log.info('Post created', { postId: created.id })
+		log.info('Post created', { id: created.id, postId: created.id })
 
 		return Response.json({
 			ok: true,
@@ -65,6 +66,6 @@ export async function POST(req: Request): Promise<Response> {
 	} catch (error) {
 		log.error('Unhandled error in POST', undefined, error)
 
-		return Response.json({ error: 'Internal server error' }, { status: 500 })
+		return Response.json({ error: 'Internal server error while creating post' }, { status: 500 })
 	}
 }

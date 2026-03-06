@@ -1,4 +1,4 @@
-import type { EmbedSearchParams } from '@/app/embed/feed/page'
+import type { EmbedSearchParams } from '@/app/(app)/embed/feed/page'
 import VideoUrlUploadPanel from '@/components/dev/VideoUrlUploadPanel'
 
 type DevUploadPageProps = {
