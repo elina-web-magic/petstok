@@ -1,21 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { InfoIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { analyzeVideoMetadata } from '@/server/ai/actions/analyzeVideoMetadata'
 import { Textarea } from '../ui/textarea'
-
-type CreatePostResponse = {
-	ok: true
-	post: {
-		id: number
-		videoUrl: string
-		caption: string
-		petId: number
-	}
-}
 
 type AiResult = {
 	tags: string[]
@@ -28,62 +19,65 @@ type AiResult = {
 	rationale: string
 }
 
-const VideoUrlUploadPanel = () => {
-	const [videoUrl, setVideoUrl] = useState('')
+type VideoUrlUploadPanelProps = {
+	initialVideoUrl?: string
+	initialVideoError?: boolean
+}
+
+const VideoUrlUploadPanel = ({
+	initialVideoUrl = '',
+	initialVideoError,
+}: VideoUrlUploadPanelProps) => {
+	const [videoUrl, setVideoUrl] = useState(initialVideoUrl)
 	const [referenceUrlsText, setReferenceUrlsText] = useState('')
 	const [loading, setLoading] = useState(false)
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [result, setResult] = useState<AiResult | null>(null)
-	const [videoError, setVideoError] = useState(false)
+	const [videoError, setVideoError] = useState(initialVideoError ?? false)
 	const [showDetails, setShowDetails] = useState(false)
-	const [postId, setPostId] = useState<number | null>(null)
 
-	const handleAnalyze = async () => {
+	const handleDevAnalyzeFlow = async () => {
 		setLoading(true)
 		setErrorMessage(null)
 		setResult(null)
 		setShowDetails(false)
-		setPostId(null)
 
 		try {
-			const createRes = await fetch('/api/posts', {
+			const animalReferenceImageUrls = referenceUrlsText
+				.split('\n')
+				.map((value) => value.trim())
+				.filter((value) => value.length > 0)
+
+			const response = await fetch('/api/ai/quick-video-check', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ id: 123, videoUrl, caption: '', petId: 1 }),
+				body: JSON.stringify({
+					videoUrl,
+					animalReferenceImageUrls,
+				}),
 			})
 
-			if (!createRes.ok) {
-				const text = await createRes.text()
-				throw new Error(`createRes ${text} ${createRes.status}`)
+			if (!response.ok) {
+				const text = await response.text()
+				throw new Error(`Quick check failed: ${text} ${response.status}`)
 			}
 
-			const created = (await createRes.json()) as CreatePostResponse
-			setPostId(created.post.id)
-
-			const ai = await analyzeVideoMetadata({ postId: created.post.id })
-
-			if (!ai.ok) {
-				throw new Error(`Analyze video failed: ${ai.error}`)
-			}
-
-			setResult({
-				tags: ['#saved-to-db'],
-				animal: 'unknown',
-				isBlind: false,
-				confidence: { animal: 0, blind: 0 },
-				rationale: `Saved AI result. Moderation: ${ai.video?.moderationStatus}`,
-			})
+			const data = (await response.json()) as AiResult
+			setResult(data)
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error'
 			setErrorMessage(message)
 			setResult(null)
-			setPostId(null)
 		} finally {
 			setLoading(false)
 		}
 	}
+
+	useEffect(() => {
+		setVideoError(initialVideoError ?? false)
+	}, [initialVideoError])
 
 	return (
 		<div className="rounded-xl border border-[var(--ps-border)] bg-[var(--ps-card)] p-4 space-y-3">
@@ -100,9 +94,12 @@ const VideoUrlUploadPanel = () => {
 						setVideoError(false)
 					}}
 				/>
+				{/* TODO:input edits do not update URL search params automatically.
+				Later we may add a
+				"Update URL" button for shareable preview links. */}
 			</Field>
 
-			{videoUrl.trim().length > 0 && (
+			{!videoError && videoUrl.length > 0 ? (
 				<div className="mt-3 space-y-2">
 					<div className="aspect-[9/16] w-full overflow-hidden rounded-lg bg-[var(--ps-muted)]">
 						<video
@@ -117,12 +114,16 @@ const VideoUrlUploadPanel = () => {
 							<track kind="captions" />
 						</video>
 					</div>
-
-					{videoError && (
-						<p className="text-xs text-destructive">Cannot upload video. Check URL (mp4).</p>
-					)}
-
-					<p className="text-xs text-muted-foreground">Tip: Please, use mp4 format</p>
+				</div>
+			) : (
+				<div className="grid w-full max-w-md items-start gap-4">
+					<Alert>
+						<InfoIcon />
+						<AlertTitle>Cannot upload video. Check URL (mp4)</AlertTitle>
+						<AlertDescription>
+							Tip: https://res.cloudinary.com/.../image/upload/alisa-1.jpg
+						</AlertDescription>
+					</Alert>
 				</div>
 			)}
 
@@ -138,11 +139,13 @@ const VideoUrlUploadPanel = () => {
 				/>
 			</Field>
 
-			<Button className="w-full" onClick={handleAnalyze} disabled={loading}>
+			<Button
+				className="w-full"
+				onClick={handleDevAnalyzeFlow}
+				disabled={loading || !videoUrl.trim() || videoError}
+			>
 				{loading ? 'Analyzing…' : 'Analyze with Vision'}
 			</Button>
-
-			{postId && <p className="text-xs text-muted-foreground">Post created #{postId}</p>}
 
 			{!errorMessage && !result && (
 				<p className="text-xs text-muted-foreground">Press Analyze to see result</p>
