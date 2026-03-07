@@ -1,13 +1,19 @@
-import Link from 'next/link'
 import type { CSSProperties } from 'react'
-import AiDebugPanel from '@/components/ai/AiDebugPanel'
-import { Button } from '@/components/ui/button'
+import DevUploadPage from '@/app/dev/ai/page'
+import { getOptionalStringParam, getStringParam } from '@/server/http/searchParams'
+import { isVideoUrl } from '@/server/video/video.validation'
 import { type EmbedTheme, themeVarsByMode } from './styles'
 
-type EmbedSearchParams = {
+export type EmbedSearchParams = {
 	userId?: string
 	video?: string
 	theme?: string
+}
+
+export type ValidationgErrors = {
+	videoError?: boolean
+	userIdError?: boolean
+	themeError?: boolean
 }
 
 type EmbedFeedPageProps = {
@@ -23,12 +29,24 @@ const getTheme = (value: string | undefined): EmbedTheme | 'auto' => {
 const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 	const params = (await searchParams) ?? {}
 
-	const videoId = typeof params.video === 'string' ? params.video : 'demo'
-	const userId = typeof params.userId === 'string' ? params.userId : ''
-	const theme = getTheme(typeof params.theme === 'string' ? params.theme : undefined)
+	const videoParam = getStringParam(params.video)
+	const userId = getStringParam(params.userId)
+	const theme = getTheme(getOptionalStringParam(params.theme))
 
 	const styleVars =
 		theme === 'auto' ? undefined : (themeVarsByMode[theme] as unknown as CSSProperties)
+
+	const initialVideoUrl = videoParam
+	const initialVideoError = !isVideoUrl(videoParam)
+
+	const validatedParams = {
+		...params,
+		video: initialVideoUrl,
+	}
+
+	const validatingErrors = {
+		videoError: initialVideoError,
+	}
 
 	return (
 		<div
@@ -42,35 +60,12 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 						<h1 className="text-lg font-semibold">Petstok</h1>
 						<p className="text-sm text-muted-foreground">
 							User: <span className="font-medium text-foreground">{userId || '—'}</span> · Video:{' '}
-							<span className="font-medium text-foreground">{videoId}</span> · Theme:{' '}
+							<span className="font-medium text-foreground">{videoParam}</span> · Theme:{' '}
 							<span className="font-medium text-foreground">{theme}</span>
 						</p>
 					</div>
-
-					<div className="mt-4 space-y-3">
-						<div className="aspect-[9/16] w-full overflow-hidden rounded-lg bg-[var(--ps-muted)]">
-							<div className="flex h-full w-full items-center justify-center">
-								<p className="text-sm text-muted-foreground">Video placeholder</p>
-							</div>
-						</div>
-
-						<AiDebugPanel />
-
-						<Button
-							asChild
-							className="w-full border border-[var(--ps-border)] bg-[var(--ps-primary)] text-[var(--ps-primary-fg)]"
-						>
-							<Link href="/">Open in Petstok</Link>
-						</Button>
-					</div>
-
-					<div className="mt-4 border-t pt-3">
-						<p className="text-xs text-muted-foreground">
-							Tip: try{' '}
-							<span className="font-medium">/embed/feed?userId=1&amp;video=123&amp;theme=auto</span>
-						</p>
-					</div>
 				</div>
+				<DevUploadPage searchParams={validatedParams} errors={validatingErrors} />
 			</div>
 		</div>
 	)

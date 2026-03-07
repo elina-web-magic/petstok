@@ -1,36 +1,23 @@
-import { AnalyzePostButton } from '@/components/ai/AnalyzePostButton'
+import type { EmbedSearchParams, ValidationgErrors } from '@/app/(app)/embed/feed/page'
+import VideoUrlUploadPanel from '@/components/dev/VideoUrlUploadPanel'
 
-type DevAiPageProps = {
-	searchParams: Promise<{ postId?: string }>
+type DevUploadPageProps = {
+	searchParams: EmbedSearchParams
+	errors?: ValidationgErrors
 }
 
-const DevAiPage = async ({ searchParams }: DevAiPageProps) => {
-	const params = await searchParams
-	const rawPostId = params.postId
-
-	if (!rawPostId) {
-		return (
-			<div className="mx-auto w-full max-w-[550px] px-4 py-6">
-				<p>Provide ?postId=123</p>
-			</div>
-		)
-	}
-
-	const numberPostId = Number(rawPostId)
-
-	if (Number.isNaN(numberPostId) || numberPostId <= 0) {
-		return (
-			<div className="mx-auto w-full max-w-[550px] px-4 py-6">
-				<p>Invalid postId</p>
-			</div>
-		)
-	}
+const DevUploadPage = async ({ searchParams, errors }: DevUploadPageProps) => {
+	const initialVideoUrl = typeof searchParams.video === 'string' ? searchParams.video : ''
 
 	return (
-		<div className="mx-auto w-full max-w-[550px] px-4 py-6">
-			<AnalyzePostButton postId={numberPostId} />
+		<div className="mx-auto w-full max-w-[550px] px-4 py-6 space-y-4">
+			<h1 className="text-lg font-semibold">Dev: URL Upload + AI Analyze</h1>
+			<VideoUrlUploadPanel
+				initialVideoUrl={initialVideoUrl}
+				initialVideoError={errors?.videoError}
+			/>
 		</div>
 	)
 }
 
-export default DevAiPage
+export default DevUploadPage
