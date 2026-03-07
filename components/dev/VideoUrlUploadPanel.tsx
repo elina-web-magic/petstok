@@ -1,23 +1,25 @@
 'use client'
 
 import { InfoIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { type MouseEvent, useEffect, useState } from 'react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import type { QuickVideoAiResult } from '@/server/ai/types'
+import type { CreatePostResponse } from '@/server/posts/types'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '../ui/alert-dialog'
 import { Textarea } from '../ui/textarea'
-
-type AiResult = {
-	tags: string[]
-	animal: 'cat' | 'dog' | 'unknown'
-	isBlind: boolean
-	confidence: {
-		animal: number
-		blind: number
-	}
-	rationale: string
-}
 
 type VideoUrlUploadPanelProps = {
 	initialVideoUrl?: string
@@ -31,10 +33,15 @@ const VideoUrlUploadPanel = ({
 	const [videoUrl, setVideoUrl] = useState(initialVideoUrl)
 	const [referenceUrlsText, setReferenceUrlsText] = useState('')
 	const [loading, setLoading] = useState(false)
+	const [publishLoading, setPublishLoading] = useState(false)
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
-	const [result, setResult] = useState<AiResult | null>(null)
+	const [errorMessagePublish, setErrorMessagePublish] = useState<string | null>(null)
+	const [result, setResult] = useState<QuickVideoAiResult | null>(null)
 	const [videoError, setVideoError] = useState(initialVideoError ?? false)
 	const [showDetails, setShowDetails] = useState(false)
+	const [caption, setCaption] = useState('')
+
+	const router = useRouter()
 
 	const handleDevAnalyzeFlow = async () => {
 		setLoading(true)
@@ -64,7 +71,7 @@ const VideoUrlUploadPanel = ({
 				throw new Error(`Quick check failed: ${text} ${response.status}`)
 			}
 
-			const data = (await response.json()) as AiResult
+			const data = (await response.json()) as QuickVideoAiResult
 			setResult(data)
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error'
@@ -72,6 +79,47 @@ const VideoUrlUploadPanel = ({
 			setResult(null)
 		} finally {
 			setLoading(false)
+		}
+	}
+
+	const handlePublishPost = async () => {
+		setPublishLoading(true)
+		setErrorMessagePublish(null)
+
+		try {
+			const response = await fetch('/api/posts', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					videoUrl,
+					caption,
+					petId: 1,
+				}),
+			})
+
+			if (!response.ok) {
+				const text = await response.text()
+				throw new Error(`Cannot publish post ${response.status} ${text}`)
+			}
+
+			const data = (await response.json()) as CreatePostResponse
+			router.push(`/posts/${data.post.id}`)
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Unknown error'
+			setErrorMessagePublish(message)
+		} finally {
+			setPublishLoading(false)
+		}
+	}
+
+	const handlePrePublish = (e: MouseEvent<HTMLButtonElement>) => {
+		if (!caption.trim()) {
+			e.preventDefault()
+			setErrorMessagePublish('Please, add caption')
+		} else {
+			setErrorMessagePublish(null)
 		}
 	}
 
@@ -94,9 +142,6 @@ const VideoUrlUploadPanel = ({
 						setVideoError(false)
 					}}
 				/>
-				{/* TODO:input edits do not update URL search params automatically.
-				Later we may add a
-				"Update URL" button for shareable preview links. */}
 			</Field>
 
 			{!videoError && videoUrl.length > 0 ? (
@@ -120,9 +165,7 @@ const VideoUrlUploadPanel = ({
 					<Alert>
 						<InfoIcon />
 						<AlertTitle>Cannot upload video. Check URL (mp4)</AlertTitle>
-						<AlertDescription>
-							Tip: https://res.cloudinary.com/.../image/upload/alisa-1.jpg
-						</AlertDescription>
+						<AlertDescription>Tip: https://res.cloudinary.com/.../.mp4</AlertDescription>
 					</Alert>
 				</div>
 			)}
@@ -141,6 +184,7 @@ const VideoUrlUploadPanel = ({
 
 			<Button
 				className="w-full"
+				variant="secondary"
 				onClick={handleDevAnalyzeFlow}
 				disabled={loading || !videoUrl.trim() || videoError}
 			>
@@ -150,9 +194,50 @@ const VideoUrlUploadPanel = ({
 			{!errorMessage && !result && (
 				<p className="text-xs text-muted-foreground">Press Analyze to see result</p>
 			)}
+
 			{errorMessage && (
 				<div className="rounded-md border border-destructive/30 bg-destructive/10 p-2">
 					<p className="text-xs text-destructive">{errorMessage}</p>
+				</div>
+			)}
+
+			<Field className="space-y-1">
+				<FieldLabel htmlFor="captionTextArea">Caption</FieldLabel>
+				<Textarea
+					id="captionTextArea"
+					value={caption}
+					onChange={(e) => setCaption(e.target.value)}
+					placeholder="Write a short caption for the post"
+					className="min-h-[96px] w-full rounded-md border px-3 py-2 text-sm"
+				/>
+			</Field>
+
+			<AlertDialog>
+				<AlertDialogTrigger asChild>
+					<Button
+						type="button"
+						size="sm"
+						className="w-full"
+						disabled={!videoUrl.trim() || videoError || publishLoading}
+						onClick={handlePrePublish}
+					>
+						Publish
+					</Button>
+				</AlertDialogTrigger>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Are you sure you want to publish a post?</AlertDialogTitle>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction onClick={handlePublishPost}>Continue</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+
+			{errorMessagePublish && (
+				<div className="rounded-md border border-destructive/30 bg-destructive/10 p-2">
+					<p className="text-xs text-destructive">{errorMessagePublish}</p>
 				</div>
 			)}
 

@@ -3,6 +3,7 @@ import { Logger } from '@/lib/logger/logger'
 import { ConsoleSink } from '@/lib/logger/sinks'
 import { getPrisma } from '@/lib/prisma'
 import { isCreatePostBody } from '@/server/posts/post.validation'
+import type { CreatePostBody } from '@/server/posts/types'
 
 export const runtime = 'nodejs'
 
@@ -33,7 +34,7 @@ export async function POST(req: Request): Promise<Response> {
 			return Response.json({ error: 'Error while request body post' }, { status: 400 })
 		}
 
-		const { caption, videoUrl, petId } = rawBody
+		const { caption, videoUrl, petId } = rawBody as CreatePostBody
 		const videoUrlTrimmed = videoUrl.trim()
 		const captionTrimmed = caption?.trim() ?? ''
 

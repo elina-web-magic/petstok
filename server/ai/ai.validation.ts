@@ -1,9 +1,5 @@
 import { isNonEmptyString, isRecord, isStringArray } from '@/server/utils/guards'
-
-type PetTagsRequestBody = {
-	videoUrl: string
-	animalReferenceImageUrls: string[]
-}
+import type { PetTagsRequestBody } from './types'
 
 export const isPetTagsRequestBody = (value: unknown): value is PetTagsRequestBody => {
 	if (!isRecord(value)) return false

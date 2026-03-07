@@ -1,21 +1,5 @@
 import type { Logger } from '@/lib/logger/logger'
-import { ConsoleSink } from '@/lib/logger/sinks'
-
-export type QuickVideoAiInput = {
-	videoUrl: string
-	animalReferenceImageUrls: string[]
-}
-
-export type QuickVideoAiResult = {
-	tags: string[]
-	animal: 'cat' | 'dog' | 'unknown'
-	isBlind: boolean
-	confidence: {
-		animal: number
-		blind: number
-	}
-	rationale: string
-}
+import type { QuickVideoAiInput, QuickVideoAiResult } from '../types'
 
 export const runQuickVideoAiProvider = async (
 	input: QuickVideoAiInput,

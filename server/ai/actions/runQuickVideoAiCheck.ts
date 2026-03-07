@@ -1,14 +1,7 @@
 import type { Logger } from '@/lib/logger/logger'
 import { runQuickVideoAiGuard } from '@/server/ai/guards/quickVideoAiGuard'
-import {
-	type QuickVideoAiInput,
-	type QuickVideoAiResult,
-	runQuickVideoAiProvider,
-} from '@/server/ai/providers/quickVideoAiProvider'
-
-export type RunQuickVideoAiCheckResult =
-	| { ok: true; result: QuickVideoAiResult }
-	| { ok: false; error: string }
+import { runQuickVideoAiProvider } from '@/server/ai/providers/quickVideoAiProvider'
+import type { QuickVideoAiInput, RunQuickVideoAiCheckResult } from '../types'
 
 export const runQuickVideoAiCheck = async (
 	input: QuickVideoAiInput,

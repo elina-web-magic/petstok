@@ -1,6 +1,4 @@
-import type { QuickVideoAiInput } from '../providers/quickVideoAiProvider'
-
-export type QuickVideoAiGuardResult = { ok: true } | { ok: false; reason: string }
+import type { QuickVideoAiGuardResult, QuickVideoAiInput } from '../types'
 
 export const runQuickVideoAiGuard = (input: QuickVideoAiInput): QuickVideoAiGuardResult => {
 	const { videoUrl, animalReferenceImageUrls } = input
