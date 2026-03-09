@@ -13,7 +13,7 @@ export const runQuickVideoAiProvider = async (
 		log.info('AI classification result', { animal: 'cat' })
 
 		return {
-			tags: ['#cat'],
+			aiTags: ['#cat'],
 			animal: 'cat',
 			isBlind: true,
 			confidence: { animal: 0.85, blind: 0.95 },
@@ -25,7 +25,7 @@ export const runQuickVideoAiProvider = async (
 		log.info('AI classification result', { animal: 'dog' })
 
 		return {
-			tags: ['#dog'],
+			aiTags: ['#dog'],
 			animal: 'dog',
 			isBlind: false,
 			confidence: { animal: 0.88, blind: 0.1 },
@@ -36,7 +36,7 @@ export const runQuickVideoAiProvider = async (
 	log.warn('AI returned low confidence')
 
 	return {
-		tags: ['#pet'],
+		aiTags: ['#pet'],
 		animal: 'unknown',
 		isBlind: false,
 		confidence: { animal: 0.4, blind: 0.1 },

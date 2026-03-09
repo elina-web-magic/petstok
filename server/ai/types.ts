@@ -1,5 +1,5 @@
 export type QuickVideoAiResult = {
-	tags: string[]
+	aiTags: string[]
 	animal: 'cat' | 'dog' | 'unknown'
 	isBlind: boolean
 	confidence: {

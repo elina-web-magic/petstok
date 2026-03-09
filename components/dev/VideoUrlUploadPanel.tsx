@@ -20,6 +20,7 @@ import {
 	AlertDialogTrigger,
 } from '../ui/alert-dialog'
 import { Textarea } from '../ui/textarea'
+import { Preview } from '../video/Preview'
 
 type VideoUrlUploadPanelProps = {
 	initialVideoUrl?: string
@@ -146,19 +147,16 @@ const VideoUrlUploadPanel = ({
 
 			{!videoError && videoUrl.length > 0 ? (
 				<div className="mt-3 space-y-2">
-					<div className="aspect-[9/16] w-full overflow-hidden rounded-lg bg-[var(--ps-muted)]">
-						<video
-							className="h-full w-full object-cover"
-							src={videoUrl}
-							muted
-							controls
-							playsInline
-							preload="metadata"
-							onError={() => setVideoError(true)}
-						>
-							<track kind="captions" />
-						</video>
-					</div>
+					<Preview
+						className="w-full overflow-hidden rounded-lg bg-[var(--ps-muted)]"
+						videoUrl={videoUrl}
+						onError={() => setVideoError(true)}
+						aspectRatio={9 / 16}
+						muted
+						controls
+						preload="metadata"
+						playsInline
+					/>
 				</div>
 			) : (
 				<div className="grid w-full max-w-md items-start gap-4">

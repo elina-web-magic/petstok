@@ -1,13 +1,9 @@
 import { Logger } from '@/lib/logger/logger'
 import { ConsoleSink } from '@/lib/logger/sinks'
-import { getPrisma } from '@/lib/prisma'
+import { getPostById } from '@/server/posts/actions/getPostById'
+import { parseId } from '@/server/utils/guards'
 
 export const runtime = 'nodejs'
-
-const parseId = (value: string): number | null => {
-	const n = Number(value)
-	return Number.isFinite(n) && n > 0 ? n : null
-}
 
 const logger = new Logger({
 	scope: 'api:post',
@@ -19,8 +15,6 @@ export const GET = async (
 	_req: Request,
 	ctx: { params: Promise<{ postId: string }> }
 ): Promise<Response> => {
-	const prisma = getPrisma()
-
 	const { postId } = await ctx.params
 	const id = parseId(postId)
 
@@ -34,25 +28,7 @@ export const GET = async (
 		return Response.json({ error: 'Invalid post' }, { status: 400 })
 	}
 
-	const post = await prisma.post.findUnique({
-		where: { id },
-		select: {
-			id: true,
-			caption: true,
-			videoUrl: true,
-			petId: true,
-			video: {
-				select: {
-					id: true,
-					aiTags: true,
-					aiConfidence: true,
-					aiDescription: true,
-					moderationStatus: true,
-					moderationReason: true,
-				},
-			},
-		},
-	})
+	const post = await getPostById(id)
 
 	if (!post) {
 		log.error('Post not found')
