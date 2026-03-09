@@ -49,20 +49,14 @@ const PostPage = async ({ params }: PostPageProps) => {
 				<p className="text-sm text-muted-foreground">Pet ID: {petId}</p>
 				{moderationStatus ? (
 					<p className="text-sm text-muted-foreground">Moderation Status: {moderationStatus}</p>
-				) : (
-					<></>
-				)}
+				) : null}
 				{moderationReason ? (
 					<p className="text-sm text-muted-foreground">Moderation Reason: {moderationReason}</p>
-				) : (
-					<></>
-				)}
+				) : null}
 				{aiDescription ? (
 					<p className="text-sm text-muted-foreground">Description: {aiDescription}</p>
-				) : (
-					<></>
-				)}
-				{aiTags?.length ? aiTags.map((tag) => <div key={tag}>#{tag}</div>) : <></>}
+				) : null}
+				{aiTags?.length ? aiTags.map((tag) => <div key={tag}>#{tag}</div>) : null}
 				<div className="flex items-center justify-between">
 					<span className="font-medium">Animal confidence:</span>
 					<span className="text-muted-foreground">{aiConfidence}</span>
