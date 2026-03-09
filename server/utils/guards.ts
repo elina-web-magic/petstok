@@ -14,3 +14,8 @@ export const isPositiveNumber = (value: unknown): value is number =>
 
 export const isOptionalString = (value: unknown): value is string | undefined =>
 	value === undefined || typeof value === 'string'
+
+export const parseId = (value: string): number | null => {
+	const n = Number(value)
+	return Number.isFinite(n) && n > 0 ? n : null
+}
