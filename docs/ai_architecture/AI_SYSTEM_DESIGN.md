@@ -245,7 +245,7 @@ Petstok uses a staged AI strategy.
 
 Use general-purpose APIs:
 
-- OpenAI Vision
+- GoogleGenAI Vision
 - other multimodal models
 
 Advantages:

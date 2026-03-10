@@ -1,4 +1,5 @@
 import type { Logger } from '@/lib/logger/logger'
+import { extractFrames } from '@/server/video/extractFrames'
 import type { QuickVideoAiInput, QuickVideoAiResult } from '../types'
 
 export const runQuickVideoAiProvider = async (
@@ -7,7 +8,9 @@ export const runQuickVideoAiProvider = async (
 ): Promise<QuickVideoAiResult> => {
 	const normalizedUrl = input.videoUrl.trim().toLowerCase()
 
-	log.info('Running quick AI provider', { normalizedUrl })
+	const frames = extractFrames(normalizedUrl)
+
+	log.info('Running quick AI provider', { normalizedUrl, frames })
 
 	if (normalizedUrl.includes('cat')) {
 		log.info('AI classification result', { animal: 'cat' })

@@ -218,7 +218,7 @@ Replace mock providers with real APIs.
 
 Possible providers:
 
-- OpenAI Vision
+- GoogleGenAI Vision
 - multimodal LLMs
 - Cloudinary AI
 

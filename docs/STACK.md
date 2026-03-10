@@ -153,7 +153,7 @@ Used for:
 Future integrations may include:
 
 ```text
-OpenAI Vision
+GoogleGenAI Vision
 Cloudinary AI
 multimodal LLMs
 ```

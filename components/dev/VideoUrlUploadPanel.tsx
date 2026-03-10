@@ -182,7 +182,7 @@ const VideoUrlUploadPanel = ({
 
 			<Button
 				className="w-full"
-				variant="secondary"
+				variant="outline"
 				onClick={handleDevAnalyzeFlow}
 				disabled={loading || !videoUrl.trim() || videoError}
 			>
