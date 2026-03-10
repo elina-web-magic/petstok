@@ -1,6 +1,6 @@
 # Project Rules
 
-These rules ensure code consistency and maintainability.
+These rules ensure code consistency, maintainability, and predictable architecture across the project.
 
 ---
 
@@ -8,56 +8,84 @@ These rules ensure code consistency and maintainability.
 
 - Do not use `any`
 - Prefer explicit types
-- Prefer shared types
-- Avoid type duplication
+- Prefer shared types from domain modules
+- Avoid duplicating type definitions
+- Prefer `type` for domain objects and API contracts
+
+Example:
+
+```text
+type PostDetails = {
+  id: number
+  videoUrl: string
+  caption?: string
+}
+```
 
 ---
 
 ## Function Rules
 
-Use arrow functions.
+Prefer arrow functions.
 
 Correct:
 
+```text
 const createPost = async () => {}
+```
 
 Avoid:
 
+```text
 function createPost() {}
+```
+
+Arrow functions maintain consistent style and reduce context confusion.
 
 ---
 
 ## File Responsibilities
 
-Each file should have one responsibility.
+Each file should have a single responsibility.
 
 Examples:
 
-validation file → request shape validation  
-guard file → business safety checks  
-provider file → external AI logic  
+```mermaid
+graph LR;
+    Val["validation file"] --> Shape["request shape validation"];
+    Guard["guard file"] --> Safety["business safety checks"];
+    Action["action file"] --> Logic["application logic"];
+    Provider["provider file"] --> AI["external AI logic"];
+    Persist["persistence file"] --> DB["database access"];
+```
+
+This keeps layers predictable and easy to reason about.
 
 ---
 
 ## Server vs Client
 
-Client components:
+Client Components should only handle:
 
 - UI interaction
 - local state
 - browser APIs
+- form submission
 
-Server components:
+Server Components should handle:
 
 - data fetching
-- DB access
-- data formatting
+- database access
+- calling server services
+- preparing UI data
+
+Prefer server rendering whenever possible.
 
 ---
 
 ## API Routes
 
-Routes should be thin.
+Routes should remain thin.
 
 Routes should:
 
@@ -66,7 +94,18 @@ Routes should:
 - call action
 - return response
 
-Routes should not contain business logic.
+Typical structure:
+
+```text
+route
+→ validation
+→ guard
+→ action
+→ provider
+→ persistence
+```
+
+Routes must not contain business logic.
 
 ---
 
@@ -76,27 +115,49 @@ Routes must log:
 
 - request start
 - invalid input
-- errors
+- unexpected errors
 
 Providers must log:
 
 - AI invocation
 - classification results
-- fallback cases
+- fallback behavior
+
+Logs should help trace issues without exposing sensitive data.
 
 ---
 
 ## UI Rules
 
-- reuse components
-- avoid duplicated layout patterns
-- avoid inline styling logic
+UI components should follow these principles:
 
-Use shared primitives whenever possible.
+- reuse components whenever possible
+- avoid duplicated layout patterns
+- keep business logic outside UI
+- keep components small and focused
+
+Use shared UI primitives for consistent styling.
+
+---
+
+## Error Handling
+
+All failure states should be handled explicitly.
+
+Examples:
+
+- invalid ID
+- post not found
+- invalid video URL
+- failed AI request
+
+Errors should result in a clear UI state rather than silent failure.
 
 ---
 
 ## Simplicity Rule
 
-If the code is hard to explain in 30 seconds,
+If the code cannot be explained clearly in **30 seconds**,  
 it is probably too complicated.
+
+Prefer simple, predictable solutions over clever abstractions.

@@ -2,87 +2,123 @@
 
 Petstok is a mobile-first platform for uploading pet videos and analyzing them using AI.
 
-The project demonstrates modern fullstack architecture using:
+The project demonstrates a modern full-stack architecture combining:
 
 - Next.js App Router
 - React Server Components
 - Prisma
+- modular backend services
 - AI inference pipelines
-- modular backend layers
+- future custom computer vision models
 
 ---
 
 ## Core Idea
 
-Users upload videos of pets.
+Users upload videos of their pets.
 
-AI analyzes the video to detect:
+The platform analyzes the video using AI to extract useful signals such as:
 
-- pet presence
-- tags
-- potential eye health issues
+- pet detection
+- content tags
+- potential disability-related visual signals
 
-The system provides:
+The system operates in two stages.
 
-- quick AI preview before publishing
-- deeper AI analysis after publishing
+### Quick AI before publishing
+
+Provides fast feedback to the user:
+
+- suggested hashtags
+- lightweight video understanding
+
+### Deep AI after publishing
+
+Performs deeper analysis:
+
+- metadata enrichment
+- moderation signals
+- disability-related visual signal detection
 
 ---
 
-## Key Goals
-
 ## Product Goal
 
-Create a platform that helps detect potential visual issues in pets.
+Build a platform that helps detect **potential visual issues in pets** from everyday videos.
 
-This is not medical diagnosis.
+Important:
 
-It is a **visual screening system**.
+Petstok is **not a medical diagnostic tool**.
+
+Instead, it acts as a **visual screening system** that highlights signals which may require further attention.
 
 ---
 
 ## Technical Goal
 
-Demonstrate a scalable architecture combining:
+Demonstrate a scalable architecture that combines:
 
-- modern React frontend
-- structured backend services
+- modern React frontend patterns
+- layered backend services
 - AI inference pipelines
 - modular provider architecture
+- future ML training pipelines
+
+The project is structured similarly to a production AI-powered product.
 
 ---
 
-## Core Features
+## Current Features
 
-Current features:
+Implemented features:
 
 - video upload via URL
-- quick AI preview
+- video preview
+- quick AI analysis before publish
 - post creation
-- post page
-- AI metadata display
+- post page with metadata
+- modular backend architecture
 
-Planned features:
+---
 
-- deep AI analysis
-- feed / discovery
-- AI moderation
-- eye condition detection
+## Planned Features
+
+Upcoming improvements include:
+
+- deep AI analysis pipeline
+- AI moderation signals
+- feed / discovery page
+- dataset collection for ML training
+- disability detection modules
 
 ---
 
 ## AI Vision
 
-Initial AI will use generic providers.
+The AI system evolves in stages.
 
-Later the system will support:
+### Stage 1 — Generic AI APIs
 
-custom computer vision models trained on pet eye datasets.
+Use general AI providers to extract metadata and signals.
+
+### Stage 2 — Dataset Collection
+
+Collect real-world video samples and annotations.
+
+### Stage 3 — Custom ML Models
+
+Train specialized computer vision models for pet visual signals.
 
 ---
 
-## Long Term Direction
+## Long-Term Direction
 
-Petstok can evolve into:
+Petstok can evolve into an **AI-powered visual monitoring platform for pets**.
 
-AI-powered visual health monitoring platform for pets.
+Potential future capabilities:
+
+- early detection of eye conditions
+- behavioral anomaly detection
+- mobility signal detection
+
+The goal is to provide **data-driven insights for pet owners** using everyday video content.
