@@ -23,17 +23,15 @@ Client Components exist only when the browser must manage state or user interact
 
 ## Rendering Layers
 
-The application rendering flow follows this hierarchy:
+The application rendering flow follows this hierarchy.
 
-database
-↓
-server action / service
-↓
-server component
-↓
-client component (optional)
-↓
-browser interaction
+```mermaid
+graph TD;
+    DB[database] --> Service["service / action layer"];
+    Service --> Server["server component"];
+    Server --> Client["client component (optional)"];
+    Client --> Browser["browser interaction"];
+```
 
 Each layer has a specific responsibility.
 
@@ -46,22 +44,20 @@ Server Components are the default rendering mechanism.
 They are responsible for:
 
 - fetching data
-- calling server actions
+- calling server services
 - querying the database
 - preparing UI data
 - rendering layout and structure
 
 Example server rendering flow:
 
-/posts/[postId]/page.tsx
-↓
-parseId(postId)
-↓
-getPostById(id)
-↓
-Prisma query
-↓
-render UI
+```mermaid
+graph TD;
+    Route["/posts/[postId]/page.tsx"] --> Parse["parseId(postId)"];
+    Parse --> GetPost["getPostById(id)"];
+    GetPost --> Query["Prisma query"];
+    Query --> Render["render UI"];
+```
 
 The page receives fully prepared data and renders the interface.
 
@@ -83,21 +79,17 @@ Typical cases include:
 - toggles
 - local UI state
 
-Example:
+Example interaction flow:
 
-VideoUrlUploadPanel
-↓
-user enters video URL
-↓
-user presses Analyze
-↓
-fetch(”/api/ai/quick-video-check”)
-↓
-server route
-↓
-AI result
-↓
-UI state update
+```mermaid
+graph TD;
+    Panel["VideoUrlUploadPanel"] --> URL["user enters video URL"];
+    URL --> Analyze["user presses Analyze"];
+    Analyze --> Fetch["fetch('/api/ai/quick-video-check')"];
+    Fetch --> Route["API route"];
+    Route --> Result["AI result"];
+    Result --> UI["UI state update"];
+```
 
 Client Components should remain **small and focused**.
 
@@ -109,13 +101,12 @@ Data fetching should happen on the server whenever possible.
 
 Preferred approach:
 
-Server Page
-↓
-Server Action
-↓
-Database
-↓
-Render
+```mermaid
+graph TD;
+    Page["Server Page"] --> Service["Server service"];
+    Service --> DB["Database"];
+    DB --> Render["Render UI"];
+```
 
 Avoid fetching data from the client when the page can access the server directly.
 
@@ -123,13 +114,15 @@ This reduces latency and complexity.
 
 ---
 
-## Shared Server Actions
+## Shared Server Services
 
-Database queries should live in shared server functions.
+Database queries should live in shared server services.
 
 Example:
 
+```text
 getPostById(id)
+```
 
 This function can be reused by:
 
@@ -146,7 +139,7 @@ This prevents duplicated database logic.
 
 API routes are used when the request originates from the browser.
 
-Typical use cases:
+Typical use cases include:
 
 - form submissions
 - AI analysis requests
@@ -155,21 +148,18 @@ Typical use cases:
 
 Example flow:
 
-Client Component
-↓
-fetch(”/api/posts”)
-↓
-API route
-↓
-validation
-↓
-server action
-↓
-database
-↓
-response
+```mermaid
+graph TD;
+    Client["Client Component"] --> Fetch["fetch('/api/posts')"];
+    Fetch --> Route["API route"];
+    Route --> Val["validation"];
+    Val --> Guard["guard"];
+    Guard --> Action["action"];
+    Action --> DB["database"];
+    DB --> Res["response"];
+```
 
-Server Components should not call API routes if the same logic exists as a server action.
+Server Components should not call API routes if the same logic exists as a server service.
 
 ---
 
@@ -179,17 +169,14 @@ The post page is rendered entirely on the server.
 
 Flow:
 
-route: /posts/[postId]
-↓
-page.tsx
-↓
-parseId()
-↓
-getPostById()
-↓
-database
-↓
-render UI
+```mermaid
+graph TD;
+    Route["route: /posts/[postId]"] --> Page["page.tsx"];
+    Page --> Parse["parseId()"];
+    Parse --> Get["getPostById()"];
+    Get --> DB["database"];
+    DB --> Render["render UI"];
+```
 
 The page displays:
 
@@ -247,7 +234,7 @@ Rendering performance is achieved by:
 - server-side data fetching
 - minimizing client JavaScript
 - avoiding global client state
-- reusing server actions
+- reusing server services
 
 Video components should avoid unnecessary autoplay or large preload sizes.
 
@@ -279,21 +266,26 @@ All improvements should maintain the server-first architecture.
 
 ---
 
-## Rendering Rule Summary
+## Rendering Decision Rules
+
+Use the following rules when deciding where logic should live.
 
 Server Components:
 
 - fetch data
 - query database
-- render layout
+- prepare UI structure
 
 Client Components:
 
-- manage interaction
-- manage UI state
+- manage user interaction
+- manage local UI state
+- trigger browser requests
 
 API routes:
 
 - handle browser requests
+- process mutations
+- trigger AI pipelines
 
 Database access should always remain on the server.
