@@ -1,7 +1,5 @@
 'use client'
 
-import { AspectRatio } from '@/components/ui/aspect-ratio'
-
 type VideoPreview = {
 	videoUrl: string
 	preload: string
@@ -10,27 +8,24 @@ type VideoPreview = {
 	className?: string
 	controls?: boolean
 	playsInline?: boolean
-	aspectRatio?: number
 }
 
 export function Preview(props: VideoPreview) {
-	const { videoUrl, onError, className, muted, preload, playsInline, controls, aspectRatio } = props
+	const { videoUrl, onError, className, muted, preload, playsInline, controls } = props
 
 	return (
 		<div className={className}>
-			<AspectRatio ratio={aspectRatio ?? 9 / 16}>
-				<video
-					className="h-full w-full object-cover"
-					src={videoUrl}
-					muted={muted}
-					controls={controls}
-					playsInline={playsInline}
-					preload={preload}
-					onError={onError}
-				>
-					<track kind="captions" />
-				</video>
-			</AspectRatio>
+			<video
+				className="h-full object-cover"
+				src={videoUrl}
+				muted={muted}
+				controls={controls}
+				playsInline={playsInline}
+				preload={preload}
+				onError={onError}
+			>
+				<track kind="captions" />
+			</video>
 		</div>
 	)
 }

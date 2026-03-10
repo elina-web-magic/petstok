@@ -1,14 +1,14 @@
 'use client'
 
-import { InfoIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { type MouseEvent, useEffect, useState } from 'react'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { type ChangeEvent, type MouseEvent, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
 import type { QuickVideoAiResult } from '@/server/ai/types'
 import type { CreatePostResponse } from '@/server/posts/types'
+import QuickAiAnalyze from '../ai/QuickAiAnalyze'
+import ErrorPost from '../post/ErrorPost'
+import SuccessPost from '../post/SuccessPost'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -20,7 +20,6 @@ import {
 	AlertDialogTrigger,
 } from '../ui/alert-dialog'
 import { Textarea } from '../ui/textarea'
-import { Preview } from '../video/Preview'
 
 type VideoUrlUploadPanelProps = {
 	initialVideoUrl?: string
@@ -40,7 +39,7 @@ const VideoUrlUploadPanel = ({
 	const [result, setResult] = useState<QuickVideoAiResult | null>(null)
 	const [videoError, setVideoError] = useState(initialVideoError ?? false)
 	const [showDetails, setShowDetails] = useState(false)
-	const [caption, setCaption] = useState('')
+	const [description, setDescription] = useState('')
 
 	const router = useRouter()
 
@@ -95,7 +94,7 @@ const VideoUrlUploadPanel = ({
 				},
 				body: JSON.stringify({
 					videoUrl,
-					caption,
+					caption: description,
 					petId: 1,
 				}),
 			})
@@ -116,12 +115,17 @@ const VideoUrlUploadPanel = ({
 	}
 
 	const handlePrePublish = (e: MouseEvent<HTMLButtonElement>) => {
-		if (!caption.trim()) {
+		if (!description.trim()) {
 			e.preventDefault()
-			setErrorMessagePublish('Please, add caption')
+			setErrorMessagePublish('Please, add description')
 		} else {
 			setErrorMessagePublish(null)
 		}
+	}
+
+	const handleVideoUrlChange = (e: ChangeEvent<HTMLInputElement>) => {
+		setVideoUrl(e.target.value)
+		setVideoError(false)
 	}
 
 	useEffect(() => {
@@ -130,82 +134,45 @@ const VideoUrlUploadPanel = ({
 
 	return (
 		<div className="rounded-xl border border-[var(--ps-border)] bg-[var(--ps-card)] p-4 space-y-3">
-			<Field className="space-y-1">
-				<FieldLabel htmlFor="videoUrlInput">Video URL</FieldLabel>
-				<Input
-					id="videoUrlInput"
-					type="text"
-					placeholder="https://res.cloudinary.com/.../video/upload/...mp4"
-					className="w-full rounded-md border px-3 py-2 text-sm"
-					value={videoUrl}
-					onChange={(e) => {
-						setVideoUrl(e.target.value)
-						setVideoError(false)
-					}}
-				/>
-			</Field>
+			{/* QUICK VIDEO ANALYZE */}
+			<QuickAiAnalyze
+				onVideoURLInputChange={handleVideoUrlChange}
+				onImageReferenceChange={(e) => setReferenceUrlsText(e.target.value)}
+				videoUrl={videoUrl}
+				onVideoError={() => setVideoError(true)}
+				videoError={videoError}
+				referenceUrlsText={referenceUrlsText}
+				loading={loading}
+			/>
 
-			{!videoError && videoUrl.length > 0 ? (
-				<div className="mt-3 space-y-2">
-					<Preview
-						className="w-full overflow-hidden rounded-lg bg-[var(--ps-muted)]"
-						videoUrl={videoUrl}
-						onError={() => setVideoError(true)}
-						aspectRatio={9 / 16}
-						muted
-						controls
-						preload="metadata"
-						playsInline
-					/>
-				</div>
-			) : (
-				<div className="grid w-full max-w-md items-start gap-4">
-					<Alert>
-						<InfoIcon />
-						<AlertTitle>Cannot upload video. Check URL (mp4)</AlertTitle>
-						<AlertDescription>Tip: https://res.cloudinary.com/.../.mp4</AlertDescription>
-					</Alert>
-				</div>
-			)}
-
-			<Field className="space-y-1">
-				<FieldLabel htmlFor="videoReferenceTextArea">Pet reference images (optional)</FieldLabel>
-				<p className="text-xs text-muted-foreground">One URL per line</p>
-				<Textarea
-					id="videoReferenceTextArea"
-					value={referenceUrlsText}
-					onChange={(e) => setReferenceUrlsText(e.target.value)}
-					placeholder="https://res.cloudinary.com/.../image/upload/alisa-1.jpg"
-					className="min-h-[96px] w-full rounded-md border px-3 py-2 text-sm"
-				/>
-			</Field>
-
+			{/* QUICK VIDEO ANALYZE BUTTON */}
 			<Button
 				className="w-full"
-				variant="outline"
+				variant="secondary"
 				onClick={handleDevAnalyzeFlow}
 				disabled={loading || !videoUrl.trim() || videoError}
 			>
 				{loading ? 'Analyzing…' : 'Analyze with Vision'}
 			</Button>
 
+			{/* QUICK VIDEO ANALYZE ERRORS */}
 			{!errorMessage && !result && (
 				<p className="text-xs text-muted-foreground">Press Analyze to see result</p>
 			)}
-
 			{errorMessage && (
 				<div className="rounded-md border border-destructive/30 bg-destructive/10 p-2">
 					<p className="text-xs text-destructive">{errorMessage}</p>
 				</div>
 			)}
 
+			{/* DESCRIPTION */}
 			<Field className="space-y-1">
-				<FieldLabel htmlFor="captionTextArea">Caption</FieldLabel>
+				<FieldLabel htmlFor="captionTextArea">Description</FieldLabel>
 				<Textarea
 					id="captionTextArea"
-					value={caption}
-					onChange={(e) => setCaption(e.target.value)}
-					placeholder="Write a short caption for the post"
+					value={description}
+					onChange={(e) => setDescription(e.target.value)}
+					placeholder="Write a short description for the post"
 					className="min-h-[96px] w-full rounded-md border px-3 py-2 text-sm"
 				/>
 			</Field>
@@ -233,52 +200,15 @@ const VideoUrlUploadPanel = ({
 				</AlertDialogContent>
 			</AlertDialog>
 
-			{errorMessagePublish && (
-				<div className="rounded-md border border-destructive/30 bg-destructive/10 p-2">
-					<p className="text-xs text-destructive">{errorMessagePublish}</p>
-				</div>
-			)}
-
+			{errorMessagePublish && <ErrorPost errorMessagePublish={errorMessagePublish} />}
 			{result && (
-				<div className="rounded-md border border-[var(--ps-border)] bg-[var(--ps-card)] p-3 text-xs space-y-2">
-					<div className="flex items-center justify-between">
-						<div>
-							<span className="font-medium">Animal:</span>{' '}
-							{result.animal === 'cat' && <span>Cat 😺</span>}
-							{result.animal === 'dog' && <span>Dog 🐶</span>}
-							{result.animal === 'unknown' && <span>Unknown 🥺</span>}
-						</div>
-					</div>
-					<Button
-						type="button"
-						variant="outline"
-						size="sm"
-						className="w-full"
-						onClick={() => setShowDetails((v) => !v)}
-					>
-						{showDetails ? 'Hide details' : 'Show details'}
-					</Button>
-
-					{showDetails && (
-						<div className="rounded-md border border-[var(--ps-border)] bg-[var(--ps-muted)] p-2 space-y-2">
-							<div className="flex items-center justify-between">
-								<span className="font-medium">Animal confidence:</span>
-								<span className="text-muted-foreground">{result.confidence.animal}</span>
-							</div>
-
-							{result.isBlind && (
-								<div className="flex items-center justify-between">
-									<span className="font-medium">Blind confidence:</span>
-									<span className="text-muted-foreground">{result.confidence.blind}</span>
-								</div>
-							)}
-
-							<div className="text-muted-foreground">
-								<span className="font-medium text-foreground">Rationale:</span> {result.rationale}
-							</div>
-						</div>
-					)}
-				</div>
+				<SuccessPost
+					result={result}
+					videoUrl={videoUrl}
+					onError={() => setVideoError(true)}
+					openDetails={() => setShowDetails((v) => !v)}
+					showDetails={showDetails}
+				/>
 			)}
 		</div>
 	)

@@ -1,12 +1,13 @@
+export type SceneLocation = 'indoors' | 'outdoors' | 'unknown'
+export type PetType = 'cat' | 'dog' | 'unknown'
+
 export type QuickVideoAiResult = {
-	aiTags: string[]
-	animal: 'cat' | 'dog' | 'unknown'
-	isBlind: boolean
-	confidence: {
-		animal: number
-		blind: number
-	}
-	rationale: string
+	animal: PetType
+	activity: string
+	location: SceneLocation
+	hashtags: string[]
+	description: string
+	confidence: number
 }
 
 export type QuickVideoAiInput = {

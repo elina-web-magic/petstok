@@ -11,7 +11,7 @@ const DevUploadPage = async ({ searchParams, errors }: DevUploadPageProps) => {
 
 	return (
 		<div className="mx-auto w-full max-w-[550px] px-4 py-6 space-y-4">
-			<h1 className="text-lg font-semibold">Dev: URL Upload + AI Analyze</h1>
+			<h1 className="text-lg font-semibold">URL Upload + AI Analyze</h1>
 			<VideoUrlUploadPanel
 				initialVideoUrl={initialVideoUrl}
 				initialVideoError={errors?.videoError}

@@ -6,7 +6,7 @@
 		"activity": "short phrase describing what the animal is doing",
 		"location": "indoors | outdoors | unknown",
 		"hashtags": ["#tag"],
-		"description": "short description",
+		"description": "short description of the scene",
 		"confidence": "number between 0 and 1"
 	},
 	"rules": [

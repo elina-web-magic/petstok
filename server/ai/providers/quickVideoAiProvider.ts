@@ -1,48 +1,38 @@
 import type { Logger } from '@/lib/logger/logger'
 import { extractFrames } from '@/server/video/extractFrames'
 import type { QuickVideoAiInput, QuickVideoAiResult } from '../types'
+import { fallback } from './constants'
+import { analyzeFramesWithGemini } from './geminiQuickVisionClient'
+import { mapQuickVideoAiResult } from './mapQuickVideoAiResult'
+import { parseQuickVideoAiResponse } from './parseQuickVideoAiResponse'
 
 export const runQuickVideoAiProvider = async (
 	input: QuickVideoAiInput,
 	log: Logger
 ): Promise<QuickVideoAiResult> => {
-	const normalizedUrl = input.videoUrl.trim().toLowerCase()
-
+	const normalizedUrl = input.videoUrl.trim()
 	const frames = extractFrames(normalizedUrl)
 
-	log.info('Running quick AI provider', { normalizedUrl, frames })
+	try {
+		log.info('Running quick AI provider', { normalizedUrl, frames })
 
-	if (normalizedUrl.includes('cat')) {
-		log.info('AI classification result', { animal: 'cat' })
+		const geminiResponse = await analyzeFramesWithGemini(frames)
 
-		return {
-			aiTags: ['#cat'],
-			animal: 'cat',
-			isBlind: true,
-			confidence: { animal: 0.85, blind: 0.95 },
-			rationale: 'Mock response for cat video',
+		if (geminiResponse.trim() === '') {
+			throw new Error('Gemini response is empty')
 		}
-	}
 
-	if (normalizedUrl.includes('dog')) {
-		log.info('AI classification result', { animal: 'dog' })
+		const parsedResponse = parseQuickVideoAiResponse(geminiResponse)
+		const result = mapQuickVideoAiResult(parsedResponse)
 
-		return {
-			aiTags: ['#dog'],
-			animal: 'dog',
-			isBlind: false,
-			confidence: { animal: 0.88, blind: 0.1 },
-			rationale: 'Mock response for dog video',
-		}
-	}
+		log.info('Quick AI result mapped', { result })
 
-	log.warn('AI returned low confidence')
+		return result
+	} catch (error) {
+		const message = error instanceof Error ? error.message : 'Unknown error'
 
-	return {
-		aiTags: ['#pet'],
-		animal: 'unknown',
-		isBlind: false,
-		confidence: { animal: 0.4, blind: 0.1 },
-		rationale: 'Mock fallback response',
+		log.error(`Cannot get AI result: ${message}`)
+
+		return fallback
 	}
 }
