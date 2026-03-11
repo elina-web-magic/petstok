@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "Post" (
     "id" SERIAL NOT NULL,
-    "caption" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
     "videoUrl" TEXT NOT NULL,
     "likes" INTEGER NOT NULL DEFAULT 0,
     "views" INTEGER NOT NULL DEFAULT 0,

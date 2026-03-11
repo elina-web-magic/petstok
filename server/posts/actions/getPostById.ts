@@ -8,7 +8,7 @@ export const getPostById = async (postId: number): Promise<PostDetails | null> =
 		where: { id: postId },
 		select: {
 			id: true,
-			caption: true,
+			title: true,
 			videoUrl: true,
 			petId: true,
 			video: {
@@ -16,6 +16,7 @@ export const getPostById = async (postId: number): Promise<PostDetails | null> =
 					id: true,
 					aiTags: true,
 					aiConfidence: true,
+					aiTitle: true,
 					aiDescription: true,
 					moderationStatus: true,
 					moderationReason: true,
@@ -28,9 +29,11 @@ export const getPostById = async (postId: number): Promise<PostDetails | null> =
 
 	return {
 		id: post.id,
-		caption: post.caption,
+		title: post.title,
 		videoUrl: post.videoUrl,
 		petId: post.petId,
+		aiTitle: post.video?.aiTitle ?? '',
+		aiDescription: post.video?.aiDescription ?? '',
 		aiTags: post.video?.aiTags,
 		aiConfidence: post.video?.aiConfidence ?? 0,
 		moderationStatus: post.video?.moderationStatus,

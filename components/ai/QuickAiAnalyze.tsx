@@ -28,7 +28,7 @@ export default function QuickAiAnalyze(props: QuickAiAnalyzeProps) {
 		referenceUrlsText,
 	} = props
 	return (
-		<div className="QuickAiAnalyze">
+		<div className="QuickAiAnalyze grid gap-4">
 			{/* ADD VIDEO URL */}
 			<Field className="space-y-1">
 				<FieldLabel htmlFor="videoUrlInput">Video URL</FieldLabel>

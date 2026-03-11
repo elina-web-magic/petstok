@@ -66,7 +66,7 @@ stateDiagram-v2
 [*] --> Editing
 
 Editing --> QuickCheck: user clicks Analyze
-QuickCheck --> Editing: update video / caption / references
+QuickCheck --> Editing: update video / title / references
 
 Editing --> PublishReady: content is valid
 PublishReady --> Publishing: user clicks Publish
@@ -130,7 +130,7 @@ Publishing is responsible for:
 
 - creating the post
 - storing videoUrl
-- storing caption
+- storing title
 - storing petId
 - redirecting the user to the post page
 
@@ -195,7 +195,7 @@ Typical persisted fields:
 ```text
 post
  ├─ id
- ├─ caption
+ ├─ title
  ├─ videoUrl
  └─ petId
 ```

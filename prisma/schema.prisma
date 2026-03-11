@@ -47,7 +47,7 @@ model Pet {
 
 model Post {
   id        Int      @id @default(autoincrement())
-  caption   String
+  title     String
   videoUrl  String
   likes     Int      @default(0)
   views     Int      @default(0)
@@ -67,12 +67,13 @@ model Video {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  url   String
-  title String?
+  url String
 
-  aiTags           String[]         @default([])
-  aiConfidence     Float?
-  aiDescription    String?
+  aiTags        String[] @default([])
+  aiConfidence  Float?
+  aiDescription String?
+  aiTitle       String?
+
   moderationStatus ModerationStatus @default(PENDING)
   moderationReason String?
 

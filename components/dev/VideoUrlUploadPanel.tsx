@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button'
 import { Field, FieldLabel } from '@/components/ui/field'
 import type { QuickVideoAiResult } from '@/server/ai/types'
 import type { CreatePostResponse } from '@/server/posts/types'
+import AnalyzeResult from '../ai/AnalyzeResult'
 import QuickAiAnalyze from '../ai/QuickAiAnalyze'
+import DraftSavedAlert from '../custom-ui/DraftSavedAlert'
+import InsertSuggestionButton from '../custom-ui/InsertSuggestionButton'
 import ErrorPost from '../post/ErrorPost'
-import SuccessPost from '../post/SuccessPost'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -19,12 +21,15 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '../ui/alert-dialog'
+import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 
 type VideoUrlUploadPanelProps = {
 	initialVideoUrl?: string
 	initialVideoError?: boolean
 }
+
+const VIDEO_UPLOAD_DRAFT_STORAGE_KEY = 'petstok.video-upload.draft'
 
 const VideoUrlUploadPanel = ({
 	initialVideoUrl = '',
@@ -34,12 +39,16 @@ const VideoUrlUploadPanel = ({
 	const [referenceUrlsText, setReferenceUrlsText] = useState('')
 	const [loading, setLoading] = useState(false)
 	const [publishLoading, setPublishLoading] = useState(false)
+
+	const [result, setResult] = useState<QuickVideoAiResult | null>()
+	const [description, setDescription] = useState<string | undefined>()
+	const [showDetails, setShowDetails] = useState(false)
+	const [title, setTitle] = useState<string>('')
+
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [errorMessagePublish, setErrorMessagePublish] = useState<string | null>(null)
-	const [result, setResult] = useState<QuickVideoAiResult | null>(null)
 	const [videoError, setVideoError] = useState(initialVideoError ?? false)
-	const [showDetails, setShowDetails] = useState(false)
-	const [description, setDescription] = useState('')
+	const [visibleAlert, setVisibleAlert] = useState<boolean>(false)
 
 	const router = useRouter()
 
@@ -94,7 +103,7 @@ const VideoUrlUploadPanel = ({
 				},
 				body: JSON.stringify({
 					videoUrl,
-					caption: description,
+					title,
 					petId: 1,
 				}),
 			})
@@ -105,6 +114,8 @@ const VideoUrlUploadPanel = ({
 			}
 
 			const data = (await response.json()) as CreatePostResponse
+
+			localStorage.removeItem(VIDEO_UPLOAD_DRAFT_STORAGE_KEY)
 			router.push(`/posts/${data.post.id}`)
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error'
@@ -115,9 +126,9 @@ const VideoUrlUploadPanel = ({
 	}
 
 	const handlePrePublish = (e: MouseEvent<HTMLButtonElement>) => {
-		if (!description.trim()) {
+		if (!title.trim()) {
 			e.preventDefault()
-			setErrorMessagePublish('Please, add description')
+			setErrorMessagePublish('Please, add title')
 		} else {
 			setErrorMessagePublish(null)
 		}
@@ -128,12 +139,74 @@ const VideoUrlUploadPanel = ({
 		setVideoError(false)
 	}
 
+	const handleInsertSuggestion = () => {
+		if (!result) return
+
+		const hashtagsLine = result.hashtags.join(' ')
+		setTitle(result.title)
+
+		setDescription([result.description, hashtagsLine].filter(Boolean).join('\n\n'))
+	}
+
+	useEffect(() => {
+		const rawDraft = window.localStorage.getItem(VIDEO_UPLOAD_DRAFT_STORAGE_KEY)
+
+		if (!rawDraft) return
+
+		try {
+			const draft = JSON.parse(rawDraft) as {
+				videoUrl?: string
+				referenceUrlsText?: string
+				title?: string
+				description?: string
+			}
+
+			setVideoUrl(draft.videoUrl ?? initialVideoUrl)
+			setReferenceUrlsText(draft.referenceUrlsText ?? '')
+			setTitle(draft.title ?? '')
+			setDescription(draft.description ?? '')
+		} catch {
+			window.localStorage.removeItem(VIDEO_UPLOAD_DRAFT_STORAGE_KEY)
+		}
+	}, [initialVideoUrl])
+
 	useEffect(() => {
 		setVideoError(initialVideoError ?? false)
 	}, [initialVideoError])
 
+	useEffect(() => {
+		const saveTimer = setTimeout(() => {
+			const draft = {
+				videoUrl,
+				referenceUrlsText,
+				title,
+				description,
+			}
+
+			localStorage.setItem(VIDEO_UPLOAD_DRAFT_STORAGE_KEY, JSON.stringify(draft))
+
+			setVisibleAlert(true)
+
+			const hideTimer = setTimeout(() => {
+				setVisibleAlert(false)
+			}, 2000)
+
+			return () => clearTimeout(hideTimer)
+		}, 2000)
+
+		return () => clearTimeout(saveTimer)
+	}, [videoUrl, referenceUrlsText, title, description])
+
 	return (
-		<div className="rounded-xl border border-[var(--ps-border)] bg-[var(--ps-card)] p-4 space-y-3">
+		<div className="rounded-xl border border-[var(--ps-border)] bg-[var(--ps-card)] p-4 space-y-3 grid gap-4">
+			{visibleAlert && (
+				<DraftSavedAlert
+					title="Draft saved"
+					description="Your changes were saved automatically."
+					variant="secondary"
+					size="xs"
+				/>
+			)}
 			{/* QUICK VIDEO ANALYZE */}
 			<QuickAiAnalyze
 				onVideoURLInputChange={handleVideoUrlChange}
@@ -164,12 +237,44 @@ const VideoUrlUploadPanel = ({
 					<p className="text-xs text-destructive">{errorMessage}</p>
 				</div>
 			)}
+			{result && (
+				<AnalyzeResult
+					result={result}
+					videoUrl={videoUrl}
+					openDetails={() => setShowDetails((v) => !v)}
+					showDetails={showDetails}
+					onError={() => setVideoError(true)}
+				/>
+			)}
 
-			{/* DESCRIPTION */}
+			{/* CONTENT */}
+			{result && (
+				<InsertSuggestionButton
+					handleInsertSuggestion={handleInsertSuggestion}
+					text="Insert suggested content"
+				/>
+			)}
+
 			<Field className="space-y-1">
-				<FieldLabel htmlFor="captionTextArea">Description</FieldLabel>
+				<div className="flex items-center justify-between gap-2">
+					<FieldLabel htmlFor="postTitle">Title</FieldLabel>
+				</div>
+				<Input
+					id="postTitle"
+					type="text"
+					value={title}
+					onChange={(e) => setTitle(e.target.value)}
+					placeholder="Write title"
+					className="w-full rounded-md border px-3 py-2 text-sm"
+				/>
+			</Field>
+
+			<Field className="space-y-1">
+				<div className="flex items-center justify-between gap-2">
+					<FieldLabel htmlFor="postDescription">Description</FieldLabel>
+				</div>
+
 				<Textarea
-					id="captionTextArea"
 					value={description}
 					onChange={(e) => setDescription(e.target.value)}
 					placeholder="Write a short description for the post"
@@ -177,6 +282,7 @@ const VideoUrlUploadPanel = ({
 				/>
 			</Field>
 
+			{/* PUBLUSH */}
 			<AlertDialog>
 				<AlertDialogTrigger asChild>
 					<Button
@@ -201,15 +307,6 @@ const VideoUrlUploadPanel = ({
 			</AlertDialog>
 
 			{errorMessagePublish && <ErrorPost errorMessagePublish={errorMessagePublish} />}
-			{result && (
-				<SuccessPost
-					result={result}
-					videoUrl={videoUrl}
-					onError={() => setVideoError(true)}
-					openDetails={() => setShowDetails((v) => !v)}
-					showDetails={showDetails}
-				/>
-			)}
 		</div>
 	)
 }

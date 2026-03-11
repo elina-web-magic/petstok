@@ -6,10 +6,12 @@
 		"activity": "short phrase describing what the animal is doing",
 		"location": "indoors | outdoors | unknown",
 		"hashtags": ["#tag"],
+		"title": "Cute cat",
 		"description": "short description of the scene",
 		"confidence": "number between 0 and 1"
 	},
 	"rules": [
+		"title must be under 10 words",
 		"description must be under 20 words",
 		"hashtags must describe the animal and the scene",
 		"confidence must be between 0 and 1",

@@ -44,7 +44,7 @@ Example:
 type PostDetails = {
   id: number
   videoUrl: string
-  caption?: string
+  title?: string
 }
 ```
 

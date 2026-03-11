@@ -7,6 +7,7 @@ export type QuickVideoAiResult = {
 	location: SceneLocation
 	hashtags: string[]
 	description: string
+	title: string
 	confidence: number
 }
 
