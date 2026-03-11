@@ -181,7 +181,7 @@ graph TD;
 The page displays:
 
 - video preview
-- caption
+- title
 - pet id
 - moderation status
 - AI tags

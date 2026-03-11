@@ -34,26 +34,26 @@ export async function POST(req: Request): Promise<Response> {
 			return Response.json({ error: 'Error while request body post' }, { status: 400 })
 		}
 
-		const { caption, videoUrl, petId } = rawBody as CreatePostBody
+		const { title, videoUrl, petId } = rawBody as CreatePostBody
 		const videoUrlTrimmed = videoUrl.trim()
-		const captionTrimmed = caption?.trim() ?? ''
+		const titleTrimmed = title?.trim() ?? ''
 
 		log.info('Body validated', {
 			videoUrl: videoUrlTrimmed,
-			caption: captionTrimmed,
+			title: titleTrimmed,
 			petId: petId,
 		})
 
 		const created = await prisma.post.create({
 			data: {
-				caption: captionTrimmed,
+				title: titleTrimmed,
 				videoUrl: videoUrlTrimmed,
 				petId: petId,
 			},
 			select: {
 				id: true,
 				videoUrl: true,
-				caption: true,
+				title: true,
 				petId: true,
 			},
 		})

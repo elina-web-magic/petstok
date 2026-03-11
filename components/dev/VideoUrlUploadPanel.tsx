@@ -1,14 +1,16 @@
 'use client'
 
-import { InfoIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { type MouseEvent, useEffect, useState } from 'react'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { type ChangeEvent, type MouseEvent, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
 import type { QuickVideoAiResult } from '@/server/ai/types'
 import type { CreatePostResponse } from '@/server/posts/types'
+import AnalyzeResult from '../ai/AnalyzeResult'
+import QuickAiAnalyze from '../ai/QuickAiAnalyze'
+import DraftSavedAlert from '../custom-ui/DraftSavedAlert'
+import InsertSuggestionButton from '../custom-ui/InsertSuggestionButton'
+import ErrorPost from '../post/ErrorPost'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -19,13 +21,15 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '../ui/alert-dialog'
+import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
-import { Preview } from '../video/Preview'
 
 type VideoUrlUploadPanelProps = {
 	initialVideoUrl?: string
 	initialVideoError?: boolean
 }
+
+const VIDEO_UPLOAD_DRAFT_STORAGE_KEY = 'petstok.video-upload.draft'
 
 const VideoUrlUploadPanel = ({
 	initialVideoUrl = '',
@@ -35,12 +39,16 @@ const VideoUrlUploadPanel = ({
 	const [referenceUrlsText, setReferenceUrlsText] = useState('')
 	const [loading, setLoading] = useState(false)
 	const [publishLoading, setPublishLoading] = useState(false)
+
+	const [result, setResult] = useState<QuickVideoAiResult | null>()
+	const [description, setDescription] = useState<string | undefined>()
+	const [showDetails, setShowDetails] = useState(false)
+	const [title, setTitle] = useState<string>('')
+
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [errorMessagePublish, setErrorMessagePublish] = useState<string | null>(null)
-	const [result, setResult] = useState<QuickVideoAiResult | null>(null)
 	const [videoError, setVideoError] = useState(initialVideoError ?? false)
-	const [showDetails, setShowDetails] = useState(false)
-	const [caption, setCaption] = useState('')
+	const [visibleAlert, setVisibleAlert] = useState<boolean>(false)
 
 	const router = useRouter()
 
@@ -95,7 +103,7 @@ const VideoUrlUploadPanel = ({
 				},
 				body: JSON.stringify({
 					videoUrl,
-					caption,
+					title,
 					petId: 1,
 				}),
 			})
@@ -106,6 +114,8 @@ const VideoUrlUploadPanel = ({
 			}
 
 			const data = (await response.json()) as CreatePostResponse
+
+			localStorage.removeItem(VIDEO_UPLOAD_DRAFT_STORAGE_KEY)
 			router.push(`/posts/${data.post.id}`)
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error'
@@ -116,70 +126,99 @@ const VideoUrlUploadPanel = ({
 	}
 
 	const handlePrePublish = (e: MouseEvent<HTMLButtonElement>) => {
-		if (!caption.trim()) {
+		if (!title.trim()) {
 			e.preventDefault()
-			setErrorMessagePublish('Please, add caption')
+			setErrorMessagePublish('Please, add title')
 		} else {
 			setErrorMessagePublish(null)
 		}
 	}
 
+	const handleVideoUrlChange = (e: ChangeEvent<HTMLInputElement>) => {
+		setVideoUrl(e.target.value)
+		setVideoError(false)
+	}
+
+	const handleInsertSuggestion = () => {
+		if (!result) return
+
+		const hashtagsLine = result.hashtags.join(' ')
+		setTitle(result.title)
+
+		setDescription([result.description, hashtagsLine].filter(Boolean).join('\n\n'))
+	}
+
+	useEffect(() => {
+		const rawDraft = window.localStorage.getItem(VIDEO_UPLOAD_DRAFT_STORAGE_KEY)
+
+		if (!rawDraft) return
+
+		try {
+			const draft = JSON.parse(rawDraft) as {
+				videoUrl?: string
+				referenceUrlsText?: string
+				title?: string
+				description?: string
+			}
+
+			setVideoUrl(draft.videoUrl ?? initialVideoUrl)
+			setReferenceUrlsText(draft.referenceUrlsText ?? '')
+			setTitle(draft.title ?? '')
+			setDescription(draft.description ?? '')
+		} catch {
+			window.localStorage.removeItem(VIDEO_UPLOAD_DRAFT_STORAGE_KEY)
+		}
+	}, [initialVideoUrl])
+
 	useEffect(() => {
 		setVideoError(initialVideoError ?? false)
 	}, [initialVideoError])
 
+	useEffect(() => {
+		const saveTimer = setTimeout(() => {
+			const draft = {
+				videoUrl,
+				referenceUrlsText,
+				title,
+				description,
+			}
+
+			localStorage.setItem(VIDEO_UPLOAD_DRAFT_STORAGE_KEY, JSON.stringify(draft))
+
+			setVisibleAlert(true)
+
+			const hideTimer = setTimeout(() => {
+				setVisibleAlert(false)
+			}, 2000)
+
+			return () => clearTimeout(hideTimer)
+		}, 2000)
+
+		return () => clearTimeout(saveTimer)
+	}, [videoUrl, referenceUrlsText, title, description])
+
 	return (
-		<div className="rounded-xl border border-[var(--ps-border)] bg-[var(--ps-card)] p-4 space-y-3">
-			<Field className="space-y-1">
-				<FieldLabel htmlFor="videoUrlInput">Video URL</FieldLabel>
-				<Input
-					id="videoUrlInput"
-					type="text"
-					placeholder="https://res.cloudinary.com/.../video/upload/...mp4"
-					className="w-full rounded-md border px-3 py-2 text-sm"
-					value={videoUrl}
-					onChange={(e) => {
-						setVideoUrl(e.target.value)
-						setVideoError(false)
-					}}
+		<div className="rounded-xl border border-[var(--ps-border)] bg-[var(--ps-card)] p-4 space-y-3 grid gap-4">
+			{visibleAlert && (
+				<DraftSavedAlert
+					title="Draft saved"
+					description="Your changes were saved automatically."
+					variant="secondary"
+					size="xs"
 				/>
-			</Field>
-
-			{!videoError && videoUrl.length > 0 ? (
-				<div className="mt-3 space-y-2">
-					<Preview
-						className="w-full overflow-hidden rounded-lg bg-[var(--ps-muted)]"
-						videoUrl={videoUrl}
-						onError={() => setVideoError(true)}
-						aspectRatio={9 / 16}
-						muted
-						controls
-						preload="metadata"
-						playsInline
-					/>
-				</div>
-			) : (
-				<div className="grid w-full max-w-md items-start gap-4">
-					<Alert>
-						<InfoIcon />
-						<AlertTitle>Cannot upload video. Check URL (mp4)</AlertTitle>
-						<AlertDescription>Tip: https://res.cloudinary.com/.../.mp4</AlertDescription>
-					</Alert>
-				</div>
 			)}
+			{/* QUICK VIDEO ANALYZE */}
+			<QuickAiAnalyze
+				onVideoURLInputChange={handleVideoUrlChange}
+				onImageReferenceChange={(e) => setReferenceUrlsText(e.target.value)}
+				videoUrl={videoUrl}
+				onVideoError={() => setVideoError(true)}
+				videoError={videoError}
+				referenceUrlsText={referenceUrlsText}
+				loading={loading}
+			/>
 
-			<Field className="space-y-1">
-				<FieldLabel htmlFor="videoReferenceTextArea">Pet reference images (optional)</FieldLabel>
-				<p className="text-xs text-muted-foreground">One URL per line</p>
-				<Textarea
-					id="videoReferenceTextArea"
-					value={referenceUrlsText}
-					onChange={(e) => setReferenceUrlsText(e.target.value)}
-					placeholder="https://res.cloudinary.com/.../image/upload/alisa-1.jpg"
-					className="min-h-[96px] w-full rounded-md border px-3 py-2 text-sm"
-				/>
-			</Field>
-
+			{/* QUICK VIDEO ANALYZE BUTTON */}
 			<Button
 				className="w-full"
 				variant="secondary"
@@ -189,27 +228,61 @@ const VideoUrlUploadPanel = ({
 				{loading ? 'Analyzing…' : 'Analyze with Vision'}
 			</Button>
 
+			{/* QUICK VIDEO ANALYZE ERRORS */}
 			{!errorMessage && !result && (
 				<p className="text-xs text-muted-foreground">Press Analyze to see result</p>
 			)}
-
 			{errorMessage && (
 				<div className="rounded-md border border-destructive/30 bg-destructive/10 p-2">
 					<p className="text-xs text-destructive">{errorMessage}</p>
 				</div>
 			)}
+			{result && (
+				<AnalyzeResult
+					result={result}
+					videoUrl={videoUrl}
+					openDetails={() => setShowDetails((v) => !v)}
+					showDetails={showDetails}
+					onError={() => setVideoError(true)}
+				/>
+			)}
+
+			{/* CONTENT */}
+			{result && (
+				<InsertSuggestionButton
+					handleInsertSuggestion={handleInsertSuggestion}
+					text="Insert suggested content"
+				/>
+			)}
 
 			<Field className="space-y-1">
-				<FieldLabel htmlFor="captionTextArea">Caption</FieldLabel>
+				<div className="flex items-center justify-between gap-2">
+					<FieldLabel htmlFor="postTitle">Title</FieldLabel>
+				</div>
+				<Input
+					id="postTitle"
+					type="text"
+					value={title}
+					onChange={(e) => setTitle(e.target.value)}
+					placeholder="Write title"
+					className="w-full rounded-md border px-3 py-2 text-sm"
+				/>
+			</Field>
+
+			<Field className="space-y-1">
+				<div className="flex items-center justify-between gap-2">
+					<FieldLabel htmlFor="postDescription">Description</FieldLabel>
+				</div>
+
 				<Textarea
-					id="captionTextArea"
-					value={caption}
-					onChange={(e) => setCaption(e.target.value)}
-					placeholder="Write a short caption for the post"
+					value={description}
+					onChange={(e) => setDescription(e.target.value)}
+					placeholder="Write a short description for the post"
 					className="min-h-[96px] w-full rounded-md border px-3 py-2 text-sm"
 				/>
 			</Field>
 
+			{/* PUBLUSH */}
 			<AlertDialog>
 				<AlertDialogTrigger asChild>
 					<Button
@@ -233,53 +306,7 @@ const VideoUrlUploadPanel = ({
 				</AlertDialogContent>
 			</AlertDialog>
 
-			{errorMessagePublish && (
-				<div className="rounded-md border border-destructive/30 bg-destructive/10 p-2">
-					<p className="text-xs text-destructive">{errorMessagePublish}</p>
-				</div>
-			)}
-
-			{result && (
-				<div className="rounded-md border border-[var(--ps-border)] bg-[var(--ps-card)] p-3 text-xs space-y-2">
-					<div className="flex items-center justify-between">
-						<div>
-							<span className="font-medium">Animal:</span>{' '}
-							{result.animal === 'cat' && <span>Cat 😺</span>}
-							{result.animal === 'dog' && <span>Dog 🐶</span>}
-							{result.animal === 'unknown' && <span>Unknown 🥺</span>}
-						</div>
-					</div>
-					<Button
-						type="button"
-						variant="outline"
-						size="sm"
-						className="w-full"
-						onClick={() => setShowDetails((v) => !v)}
-					>
-						{showDetails ? 'Hide details' : 'Show details'}
-					</Button>
-
-					{showDetails && (
-						<div className="rounded-md border border-[var(--ps-border)] bg-[var(--ps-muted)] p-2 space-y-2">
-							<div className="flex items-center justify-between">
-								<span className="font-medium">Animal confidence:</span>
-								<span className="text-muted-foreground">{result.confidence.animal}</span>
-							</div>
-
-							{result.isBlind && (
-								<div className="flex items-center justify-between">
-									<span className="font-medium">Blind confidence:</span>
-									<span className="text-muted-foreground">{result.confidence.blind}</span>
-								</div>
-							)}
-
-							<div className="text-muted-foreground">
-								<span className="font-medium text-foreground">Rationale:</span> {result.rationale}
-							</div>
-						</div>
-					)}
-				</div>
-			)}
+			{errorMessagePublish && <ErrorPost errorMessagePublish={errorMessagePublish} />}
 		</div>
 	)
 }

@@ -1,19 +1,10 @@
-import { PrismaPg } from '@prisma/adapter-pg'
-import { type Prisma, PrismaClient } from '@prisma/client'
-import { Pool } from 'pg'
-import 'dotenv/config'
+import type { Prisma } from '@prisma/client'
+import dotenv from 'dotenv'
+import { Logger } from '@/lib/logger/logger'
+import { ConsoleSink } from '@/lib/logger/sinks'
+import { getPrisma } from '@/lib/prisma'
 
-if (!process.env.DATABASE_URL) {
-	throw new Error('DATABASE_URL is not defined')
-}
-
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-const adapter = new PrismaPg(pool)
-
-const prisma = new PrismaClient({
-	adapter,
-	log: ['query', 'error'],
-})
+dotenv.config({ path: '.env.local' })
 
 const userData: Prisma.UserCreateInput[] = [
 	{
@@ -29,13 +20,13 @@ const userData: Prisma.UserCreateInput[] = [
 					posts: {
 						create: [
 							{
-								caption: 'Hedwig brings post!',
+								title: 'Hedwig brings post!',
 								videoUrl: 'https://petstok.com/video/1',
 								likes: 1563,
 								views: 1234,
 							},
 							{
-								caption: 'Hedwig eats mouse!',
+								title: 'Hedwig eats mouse!',
 								videoUrl: 'https://petstok.com/video/2',
 								likes: 5663,
 								views: 1034,
@@ -59,13 +50,13 @@ const userData: Prisma.UserCreateInput[] = [
 					posts: {
 						create: [
 							{
-								caption: 'Crookshanks walk with his friend Sirius',
+								title: 'Crookshanks walk with his friend Sirius',
 								videoUrl: 'https://petstok.com/video/21',
 								likes: 1563,
 								views: 1234,
 							},
 							{
-								caption: 'Crookshanks eats rat!',
+								title: 'Crookshanks eats rat!',
 								videoUrl: 'https://petstok.com/video/22',
 								likes: 5663,
 								views: 1034,
@@ -89,13 +80,13 @@ const userData: Prisma.UserCreateInput[] = [
 					posts: {
 						create: [
 							{
-								caption: 'Scabbers tries to escape from Hogwarts',
+								title: 'Scabbers tries to escape from Hogwarts',
 								videoUrl: 'https://petstok.com/video/21',
 								likes: 1563,
 								views: 1234,
 							},
 							{
-								caption: 'Look, Scrabbers transform to Peter Pettigrew!',
+								title: 'Look, Scrabbers transform to Peter Pettigrew!',
 								videoUrl: 'https://petstok.com/video/22',
 								likes: 5663,
 								views: 1034,
@@ -181,13 +172,30 @@ const userData: Prisma.UserCreateInput[] = [
 	},
 ]
 
+const logger = new Logger({
+	scope: 'seed',
+	minLevel: 'debug',
+	sinks: [new ConsoleSink()],
+})
+
 export async function main() {
+	const requestId = crypto.randomUUID()
+	const log = logger.child({ requestId })
+	const prisma = getPrisma()
+
+	if (!prisma) {
+		throw new Error('Database not available')
+	}
+
 	await prisma.pet.deleteMany()
 	await prisma.user.deleteMany()
 
 	for (const u of userData) {
 		await prisma.user.create({ data: u })
+		log.info(`✅ Created user: ${u.email}`)
 	}
+
+	log.info('🎉 Seed finished')
 }
 
 main()
@@ -195,5 +203,6 @@ main()
 		process.exit(1)
 	})
 	.finally(async () => {
+		const prisma = getPrisma()
 		await prisma.$disconnect()
 	})

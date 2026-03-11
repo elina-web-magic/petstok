@@ -44,7 +44,7 @@ Example:
 type PostDetails = {
   id: number
   videoUrl: string
-  caption?: string
+  title?: string
 }
 ```
 
@@ -153,7 +153,7 @@ Used for:
 Future integrations may include:
 
 ```text
-OpenAI Vision
+GoogleGenAI Vision
 Cloudinary AI
 multimodal LLMs
 ```

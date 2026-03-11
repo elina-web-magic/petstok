@@ -2,7 +2,7 @@ type ModerationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'FLAGGED'
 
 export type CreatePostBody = {
 	videoUrl: string
-	caption?: string
+	title?: string
 	petId: number
 }
 
@@ -11,7 +11,7 @@ export type CreatePostResponse = {
 	post: {
 		id: number
 		videoUrl: string
-		caption: string
+		title: string
 		petId: number
 	}
 }
@@ -20,7 +20,8 @@ export type PostDetails = {
 	id: number
 	videoUrl: string
 	petId: number
-	caption?: string
+	title: string
+	aiTitle?: string
 	aiTags?: string[]
 	aiConfidence?: number
 	aiDescription?: string

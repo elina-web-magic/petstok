@@ -30,7 +30,7 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 	const params = (await searchParams) ?? {}
 
 	const videoParam = getStringParam(params.video)
-	const userId = getStringParam(params.userId)
+	const _userId = getStringParam(params.userId)
 	const theme = getTheme(getOptionalStringParam(params.theme))
 
 	const styleVars =
@@ -56,13 +56,7 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 			<div className="mx-auto w-full max-w-[550px] px-4 py-6">
 				<div className="rounded-xl bg-[var(--ps-card)] p-4 shadow-sm">
 					<div className="space-y-1">
-						<p className="text-xs text-muted-foreground">Embedded preview</p>
-						<h1 className="text-lg font-semibold">Petstok</h1>
-						<p className="text-sm text-muted-foreground">
-							User: <span className="font-medium text-foreground">{userId || '—'}</span> · Video:{' '}
-							<span className="font-medium text-foreground">{videoParam}</span> · Theme:{' '}
-							<span className="font-medium text-foreground">{theme}</span>
-						</p>
+						<p className="text-xs text-muted-foreground">Post Preview</p>
 					</div>
 				</div>
 				<DevUploadPage searchParams={validatedParams} errors={validatingErrors} />

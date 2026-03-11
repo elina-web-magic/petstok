@@ -107,7 +107,7 @@ Features:
 
 - [x] create post
 - [x] persist videoUrl
-- [x] persist caption
+- [x] persist title
 - [x] persist petId
 
 Flow:
@@ -133,7 +133,7 @@ Features:
 
 - [x] shared `getPostById`
 - [x] video preview component
-- [x] caption display
+- [x] title display
 - [x] pet id
 - [x] placeholder AI metadata
 
@@ -218,7 +218,7 @@ Replace mock providers with real APIs.
 
 Possible providers:
 
-- OpenAI Vision
+- GoogleGenAI Vision
 - multimodal LLMs
 - Cloudinary AI
 
