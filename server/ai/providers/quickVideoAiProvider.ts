@@ -12,7 +12,6 @@ export const runQuickVideoAiProvider = async (
 ): Promise<QuickVideoAiResult> => {
 	const normalizedUrl = input.videoUrl.trim()
 	const frames = extractRepresentativeFrames(normalizedUrl)
-	const frameUrls = frames.map((f) => f.url)
 
 	if (frames.length === 0) throw new Error('No frames extracted from video')
 
@@ -23,7 +22,7 @@ export const runQuickVideoAiProvider = async (
 			frames,
 		})
 
-		const geminiResponse = await analyzeFramesWithGemini(frameUrls, log)
+		const geminiResponse = await analyzeFramesWithGemini(frames, log)
 
 		if (geminiResponse.trim() === '') throw new Error('Gemini response is empty')
 

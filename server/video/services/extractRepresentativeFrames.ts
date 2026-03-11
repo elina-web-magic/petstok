@@ -1,11 +1,11 @@
 import { QUICK_AI_FRAME_TIMESTAMPS } from '../constants'
 
-export type VideoFrame = {
+export type VideoFrames = {
 	url: string
 	timestamp: number
 }
 
-export const extractRepresentativeFrames = (videoUrl: string): VideoFrame[] => {
+export const extractRepresentativeFrames = (videoUrl: string): VideoFrames[] => {
 	const cleanUrl = videoUrl.trim()
 
 	if (!cleanUrl) return []
