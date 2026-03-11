@@ -49,6 +49,7 @@ const VideoUrlUploadPanel = ({
 	const [errorMessagePublish, setErrorMessagePublish] = useState<string | null>(null)
 	const [videoError, setVideoError] = useState(initialVideoError ?? false)
 	const [visibleAlert, setVisibleAlert] = useState<boolean>(false)
+	const [isDirty, setIsDirty] = useState(false)
 
 	const router = useRouter()
 
@@ -170,11 +171,23 @@ const VideoUrlUploadPanel = ({
 		}
 	}, [initialVideoUrl])
 
+	const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+		setIsDirty(true)
+		setDescription(e.target.value)
+	}
+
+	const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+		setIsDirty(true)
+		setTitle(e.target.value)
+	}
+
 	useEffect(() => {
 		setVideoError(initialVideoError ?? false)
 	}, [initialVideoError])
 
 	useEffect(() => {
+		if (!isDirty) return
+
 		const saveTimer = setTimeout(() => {
 			const draft = {
 				videoUrl,
@@ -184,18 +197,22 @@ const VideoUrlUploadPanel = ({
 			}
 
 			localStorage.setItem(VIDEO_UPLOAD_DRAFT_STORAGE_KEY, JSON.stringify(draft))
-
 			setVisibleAlert(true)
-
-			const hideTimer = setTimeout(() => {
-				setVisibleAlert(false)
-			}, 2000)
-
-			return () => clearTimeout(hideTimer)
-		}, 2000)
+			setIsDirty(false)
+		}, 3000)
 
 		return () => clearTimeout(saveTimer)
-	}, [videoUrl, referenceUrlsText, title, description])
+	}, [isDirty, videoUrl, referenceUrlsText, title, description])
+
+	useEffect(() => {
+		if (!visibleAlert) return
+
+		const hideTimer = setTimeout(() => {
+			setVisibleAlert(false)
+		}, 2000)
+
+		return () => clearTimeout(hideTimer)
+	}, [visibleAlert])
 
 	return (
 		<div className="rounded-xl border border-[var(--ps-border)] bg-[var(--ps-card)] p-4 space-y-3 grid gap-4">
@@ -263,7 +280,7 @@ const VideoUrlUploadPanel = ({
 					id="postTitle"
 					type="text"
 					value={title}
-					onChange={(e) => setTitle(e.target.value)}
+					onChange={handleTitleChange}
 					placeholder="Write title"
 					className="w-full rounded-md border px-3 py-2 text-sm"
 				/>
@@ -276,7 +293,7 @@ const VideoUrlUploadPanel = ({
 
 				<Textarea
 					value={description}
-					onChange={(e) => setDescription(e.target.value)}
+					onChange={handleDescriptionChange}
 					placeholder="Write a short description for the post"
 					className="min-h-[96px] w-full rounded-md border px-3 py-2 text-sm"
 				/>
