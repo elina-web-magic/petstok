@@ -2,6 +2,7 @@ import type { QuickVideoAiResult } from '../types'
 
 export const fallback: QuickVideoAiResult = {
 	animal: 'unknown',
+	title: 'unkown',
 	activity: 'unknown activity',
 	location: 'unknown',
 	hashtags: [],
