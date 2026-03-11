@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai'
 import type { Logger } from '@/lib/logger/logger'
 import promptData from '@/server/ai/promts/quickVideoPrompt.v1.json'
+import type { VideoFrames } from '@/server/video/services/extractRepresentativeFrames'
 import { buildQuickVideoPrompt } from '../promts/buildQuickVideoPrompt'
 
 const client = new GoogleGenAI({
@@ -8,19 +9,17 @@ const client = new GoogleGenAI({
 })
 
 export const analyzeFramesWithGemini = async (
-	frameUrls: string[],
+	frameUrls: VideoFrames[],
 	log: Logger
 ): Promise<string> => {
 	const frames = frameUrls.slice(0, 3)
 	const finalPromptString = buildQuickVideoPrompt(promptData)
 
 	const imageParts = await Promise.all(
-		frames.map(async (url) => {
-			const response = await fetch(url)
+		frames.map(async (frame) => {
+			const response = await fetch(frame.url)
 
-			if (!response.ok) {
-				throw new Error(`Cannot fetch frame: ${url}`)
-			}
+			if (!response.ok) throw new Error(`Cannot fetch frame: ${frame}`)
 
 			const arrayBuffer = await response.arrayBuffer()
 			const base64 = Buffer.from(arrayBuffer).toString('base64')

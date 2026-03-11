@@ -1,5 +1,5 @@
 import type { Logger } from '@/lib/logger/logger'
-import { extractFrames } from '@/server/video/extractFrames'
+import { extractRepresentativeFrames } from '@/server/video/services/extractRepresentativeFrames'
 import type { QuickVideoAiInput, QuickVideoAiResult } from '../types'
 import { fallback } from './constants'
 import { analyzeFramesWithGemini } from './geminiQuickVisionClient'
@@ -11,11 +11,9 @@ export const runQuickVideoAiProvider = async (
 	log: Logger
 ): Promise<QuickVideoAiResult> => {
 	const normalizedUrl = input.videoUrl.trim()
-	const frames = extractFrames(normalizedUrl)
+	const frames = extractRepresentativeFrames(normalizedUrl)
 
-	if (frames.length === 0) {
-		throw new Error('No frames extracted from video')
-	}
+	if (frames.length === 0) throw new Error('No frames extracted from video')
 
 	try {
 		log.info('Prepared frames for Gemini', {
@@ -26,9 +24,7 @@ export const runQuickVideoAiProvider = async (
 
 		const geminiResponse = await analyzeFramesWithGemini(frames, log)
 
-		if (geminiResponse.trim() === '') {
-			throw new Error('Gemini response is empty')
-		}
+		if (geminiResponse.trim() === '') throw new Error('Gemini response is empty')
 
 		const parsedResponse = parseQuickVideoAiResponse(geminiResponse)
 		const result = mapQuickVideoAiResult(parsedResponse)
