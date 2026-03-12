@@ -1,4 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { mockItems } from './mocks/getMockProfileGridItems'
+import { ProfileVideosSection } from './ProfileVideosSection'
 
 const ProfileContentLayout = () => {
 	return (
@@ -10,11 +12,7 @@ const ProfileContentLayout = () => {
 					</CardHeader>
 
 					<CardContent>
-						<div className="flex min-h-[220px] items-center justify-center rounded-md border border-dashed border-border/70 px-4 py-10 text-center">
-							<p className="text-sm text-muted-foreground">
-								Videos grid will be added in the next ticket.
-							</p>
-						</div>
+						<ProfileVideosSection items={mockItems} isLoading={false} isError={false} />
 					</CardContent>
 				</Card>
 

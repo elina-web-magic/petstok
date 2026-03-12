@@ -30,13 +30,12 @@ const items = [
 export default function AppSidebar() {
 	return (
 		<Sidebar>
-			<SidebarHeader className="p-4">
+			<SidebarHeader className="p-4 flex justify-center flex-row">
 				<Link
-					href="/embed/feed"
-					className="font-bold text-xl text-foreground flex items-center justify-center sm:justify-start"
+					href="/feed"
+					className="font-bold text-xl text-foreground flex items-center justify-center sm:justify-start cursor-pointer"
 				>
-					<Image src="/logos/petstok-logo.png" alt="Petstok Logo" width={40} height={40} />
-					<span className="sm:hidden font-extrabold text-2xl">P</span>
+					<Image src="/logos/petstok-logo.png" alt="Petstok Logo" width={60} height={60} />
 				</Link>
 			</SidebarHeader>
 			<SidebarContent>
