@@ -2,20 +2,19 @@ import { ProfileVideosGrid } from './ProfileVideosGrid'
 import { ProfileVideosStateMessage } from './ProfileVideosStateMessage'
 import { ProfileVideosGridSkeleton } from './skeleton/ProfileVideosGridSkeleton'
 
-import type { ProfileVideoItem } from './types'
+import type { ProfileVideoItem, ProfileVideosStatus } from './types'
 
 type ProfileVideosSectionProps = {
 	items: ProfileVideoItem[]
-	isLoading: boolean
-	isError: boolean
+	status: ProfileVideosStatus
 }
 
 export const ProfileVideosSection = (props: ProfileVideosSectionProps) => {
-	const { items, isLoading, isError } = props
+	const { items, status } = props
 
-	if (isLoading) {
+	if (status === 'loading') {
 		return <ProfileVideosGridSkeleton />
-	} else if (isError) {
+	} else if (status === 'error') {
 		return (
 			<ProfileVideosStateMessage
 				size="default"
@@ -23,14 +22,14 @@ export const ProfileVideosSection = (props: ProfileVideosSectionProps) => {
 				message="Unable to load videos."
 			/>
 		)
-	} else if (items.length === 0)
-		return (
+	} else if (status === 'success')
+		return items.length === 0 ? (
 			<ProfileVideosStateMessage
 				size="default"
 				textColor="muted-foreground"
 				message="No videos uploaded yet."
 			/>
+		) : (
+			<ProfileVideosGrid items={items} />
 		)
-
-	return <ProfileVideosGrid items={items} />
 }

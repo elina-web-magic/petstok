@@ -9,3 +9,5 @@ export type ProfileVideoItem = {
 export type ProfileVideosGridProps = {
 	items: ProfileVideoItem[]
 }
+
+export type ProfileVideosStatus = 'loading' | 'error' | 'success'

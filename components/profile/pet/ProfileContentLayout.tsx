@@ -12,7 +12,7 @@ const ProfileContentLayout = () => {
 					</CardHeader>
 
 					<CardContent>
-						<ProfileVideosSection items={mockItems} isLoading={false} isError={false} />
+						<ProfileVideosSection items={mockItems} status="success" />
 					</CardContent>
 				</Card>
 
