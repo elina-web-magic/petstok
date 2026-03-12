@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 const HomePage = () => {
 	const sessionId = crypto.randomUUID()
 	const userId = '1'
-	const href = `/embed/feed?userId=${userId}&video=123&sessionId=${sessionId}`
+	const href = `/feed?userId=${userId}&video=123&sessionId=${sessionId}`
 
 	return (
 		<main className="min-h-dvh bg-background text-foreground">

@@ -1,8 +1,8 @@
-import type { EmbedSearchParams, ValidationgErrors } from '@/app/(app)/embed/feed/page'
+import type { SearchParams, ValidationgErrors } from '@/app/(app)/create/page'
 import VideoUrlUploadPanel from '@/components/dev/VideoUrlUploadPanel'
 
 type DevUploadPageProps = {
-	searchParams: EmbedSearchParams
+	searchParams: SearchParams
 	errors?: ValidationgErrors
 }
 
