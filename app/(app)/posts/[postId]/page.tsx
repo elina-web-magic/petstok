@@ -13,9 +13,7 @@ const PostPage = async ({ params }: PostPageProps) => {
 
 	const id = parseId(postId)
 
-	if (!id) {
-		throw new Error('Cannot get post id')
-	}
+	if (!id) throw new Error('Cannot get post id')
 
 	const data = await getPostById(id)
 

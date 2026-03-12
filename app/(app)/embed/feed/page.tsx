@@ -30,7 +30,6 @@ const EmbedFeedPage = async ({ searchParams }: EmbedFeedPageProps) => {
 	const params = (await searchParams) ?? {}
 
 	const videoParam = getStringParam(params.video)
-	const _userId = getStringParam(params.userId)
 	const theme = getTheme(getOptionalStringParam(params.theme))
 
 	const styleVars =

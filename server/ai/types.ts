@@ -22,7 +22,7 @@ export type RunQuickVideoAiCheckResult =
 	| { ok: true; result: QuickVideoAiResult }
 	| { ok: false; error: string }
 
-export type PetTagsRequestBody = {
+export type HashtagsRequestBody = {
 	videoUrl: string
 	animalReferenceImageUrls: string[]
 }
