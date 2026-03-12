@@ -1,7 +1,7 @@
 import { Logger } from '@/lib/logger/logger'
 import { ConsoleSink } from '@/lib/logger/sinks'
 import { runQuickVideoAiCheck } from '@/server/ai/actions/runQuickVideoAiCheck'
-import { isPetTagsRequestBody } from '@/server/ai/ai.validation'
+import { isHashtagsRequestBody } from '@/server/ai/ai.validation'
 
 export const runtime = 'nodejs'
 
@@ -19,7 +19,7 @@ export const POST = async (req: Request): Promise<Response> => {
 	try {
 		const rawBody: unknown = await req.json()
 
-		if (!isPetTagsRequestBody(rawBody)) {
+		if (!isHashtagsRequestBody(rawBody)) {
 			log.warn('Invalid request body', { rawBody })
 
 			return Response.json({ error: 'Invalid request body' }, { status: 400 })
