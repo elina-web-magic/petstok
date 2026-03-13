@@ -9,7 +9,6 @@ type QueryProviderProps = {
 }
 
 export const QueryProvider = ({ children }: QueryProviderProps) => {
-	// TODO: create QueryClient only once per provider lifecycle
 	const [queryClient] = useState(
 		() =>
 			new QueryClient({
