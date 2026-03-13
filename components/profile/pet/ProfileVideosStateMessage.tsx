@@ -9,5 +9,11 @@ type ProfileVideosStateMessage = {
 export const ProfileVideosStateMessage = (props: ProfileVideosStateMessage) => {
 	const { message, textColor, size = 'default' } = props
 
-	return <p className={`text-${textColor} text-${size === 'default' ? 'sm' : size}`}>{message}</p>
+	return (
+		<p
+			className={`ProfileVideosStateMessage text-${textColor} text-${size === 'default' ? 'sm' : size}`}
+		>
+			{message}
+		</p>
+	)
 }

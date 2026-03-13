@@ -19,7 +19,7 @@ const PetProfileHeader = ({ profile }: PetProfileHeaderProps) => {
 	const initials = getPetInitials(profile.name)
 
 	return (
-		<Card className="w-full border-border/60 shadow-sm">
+		<Card className="w-full border-border/60 shadow-sm ProfileHeader">
 			<CardContent className="flex flex-col gap-4 p-4 sm:p-5">
 				<div className="flex items-start gap-4">
 					<Avatar className="h-16 w-16 shrink-0 sm:h-20 sm:w-20">
