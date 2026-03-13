@@ -20,14 +20,18 @@ export const ProfileGridItem = (props: ProfileGridItemProps) => {
 					className="ProfileGridItem_ImageWrapper  w-full overflow-hidden rounded-md bg-muted"
 					ratio={9 / 16}
 				>
-					<Image
-						src={thumbnailUrl}
-						alt={title}
-						fill
-						sizes="(max-width: 550px) 50vw, 275px"
-						className="object-cover"
-						loading="eager"
-					/>
+					{thumbnailUrl !== '' ? (
+						<Image
+							src={thumbnailUrl}
+							alt={title}
+							fill
+							sizes="(max-width: 550px) 50vw, 275px"
+							className="object-cover"
+							loading="eager"
+						/>
+					) : (
+						<div> Sorry, cannot get thumbnailUrl</div>
+					)}
 				</AspectRatio>
 
 				<div className="flex flex-col">

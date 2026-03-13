@@ -8,25 +8,25 @@ dotenv.config({ path: '.env.local' })
 
 const userData: Prisma.UserCreateInput[] = [
 	{
-		name: 'Harry',
-		email: 'harry@prisma.io',
+		name: 'Elina',
+		email: 'elina@prisma.io',
 		password: 'password1',
 		pets: {
 			create: [
 				{
-					name: 'Hedwig',
-					species: 'snowy owl',
-					bio: 'Hedwig is a close friend of Harry, and is a very loyal owl.',
+					name: 'Alisa',
+					species: 'Blind cat',
+					bio: 'Alisa 🐱👑 Daughter of Elina and Vadym. Professional chatterbox 💬 snack lover 🍗 and champion sleeper 💤. Her daily schedule: talk, nap, eat snacks, repeat.',
 					posts: {
 						create: [
 							{
-								title: 'Hedwig brings post!',
+								title: 'Alisa brings post!',
 								videoUrl: 'https://petstok.com/video/1',
 								likes: 1563,
 								views: 1234,
 							},
 							{
-								title: 'Hedwig eats mouse!',
+								title: 'Alisa eats mouse!',
 								videoUrl: 'https://petstok.com/video/2',
 								likes: 5663,
 								views: 1034,
@@ -187,11 +187,33 @@ export async function main() {
 		throw new Error('Database not available')
 	}
 
+	await prisma.post.deleteMany()
 	await prisma.pet.deleteMany()
 	await prisma.user.deleteMany()
 
 	for (const u of userData) {
-		await prisma.user.create({ data: u })
+		const petsCreate = u.pets?.create
+
+		const normalizedPetsCreate = Array.isArray(petsCreate)
+			? petsCreate
+			: petsCreate
+				? [petsCreate]
+				: []
+
+		const userDataWithoutPosts =
+			u.email === 'elina@prisma.io'
+				? {
+						...u,
+						pets: {
+							create: normalizedPetsCreate.map((pet) => {
+								const { ...petData } = pet
+								return petData
+							}),
+						},
+					}
+				: u
+
+		await prisma.user.create({ data: userDataWithoutPosts })
 		log.info(`✅ Created user: ${u.email}`)
 	}
 

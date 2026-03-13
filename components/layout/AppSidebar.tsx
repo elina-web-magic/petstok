@@ -17,12 +17,12 @@ import {
 const items = [
 	{
 		title: 'Feed',
-		url: '/embed/feed',
+		url: '/feed',
 		icon: Home,
 	},
 	{
 		title: 'Profile',
-		url: '/profile/Harry/20',
+		url: '/profile/31',
 		icon: User,
 	},
 ]
@@ -35,7 +35,13 @@ export default function AppSidebar() {
 					href="/feed"
 					className="font-bold text-xl text-foreground flex items-center justify-center sm:justify-start cursor-pointer"
 				>
-					<Image src="/logos/petstok-logo.png" alt="Petstok Logo" width={60} height={60} />
+					<Image
+						src="/logos/petstok-logo.png"
+						alt="Petstok Logo"
+						width={60}
+						height={60}
+						loading="eager"
+					/>
 				</Link>
 			</SidebarHeader>
 			<SidebarContent>
