@@ -1,14 +1,14 @@
 'use client'
 
-import { type RefObject, useEffect } from 'react'
+import { type RefObject, useEffect, useRef } from 'react'
 
-type useIntersectionObserverProps = {
+type UseIntersectionObserverProps = {
 	target: RefObject<HTMLDivElement | null>
 	root?: RefObject<HTMLDivElement | null>
 	disabled: boolean
 	callback: () => void
 	rootMargin?: string
-	threshold?: number | number[] | undefined
+	threshold?: number | number[]
 }
 
 export const useIntersectionObserver = ({
@@ -16,20 +16,37 @@ export const useIntersectionObserver = ({
 	root,
 	disabled,
 	callback,
-	rootMargin,
-	threshold,
-}: useIntersectionObserverProps) => {
+	rootMargin = '200px',
+	threshold = 0,
+}: UseIntersectionObserverProps) => {
+	const callbackRef = useRef(callback)
+	const hasTriggeredRef = useRef(false)
+
 	useEffect(() => {
-		const { current: currentTarget } = target
+		callbackRef.current = callback
+	}, [callback])
+
+	useEffect(() => {
+		const currentTarget = target.current
+
+		if (!currentTarget) return
 
 		const observer = new IntersectionObserver(
 			(entries) => {
 				const entry = entries[0]
-				if (!entry) return
-				if (!entry.isIntersecting) return
-				if (disabled) return
 
-				callback()
+				if (!entry) return
+
+				if (!entry.isIntersecting) {
+					hasTriggeredRef.current = false
+					return
+				}
+
+				if (disabled) return
+				if (hasTriggeredRef.current) return
+
+				hasTriggeredRef.current = true
+				callbackRef.current()
 			},
 			{
 				root: root?.current ?? null,
@@ -37,13 +54,11 @@ export const useIntersectionObserver = ({
 				threshold,
 			}
 		)
-		if (currentTarget) observer.observe(currentTarget)
+
+		observer.observe(currentTarget)
 
 		return () => {
-			if (currentTarget) {
-				observer.unobserve(currentTarget)
-				observer.disconnect()
-			}
+			observer.disconnect()
 		}
-	}, [target, root, disabled, callback, rootMargin, threshold])
+	}, [target, root, disabled, rootMargin, threshold])
 }

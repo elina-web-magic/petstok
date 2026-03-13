@@ -19,5 +19,3 @@ export const parseId = (value: string): number | null => {
 	const n = Number(value)
 	return Number.isFinite(n) && n > 0 ? n : null
 }
-
-export const isNotNullOrUndefined = (value: unknown) => value !== null || value !== undefined

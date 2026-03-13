@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
-import { extractRepresentativeFrames } from '@/server/video/services/extractRepresentativeFrames'
 
 type ProfileGridItemProps = {
 	id: number
@@ -14,8 +13,6 @@ type ProfileGridItemProps = {
 export const ProfileGridItem = (props: ProfileGridItemProps) => {
 	const { id, title, thumbnailUrl, views, postUrl } = props
 
-	const thumbnailUrlImg = extractRepresentativeFrames(thumbnailUrl)
-
 	return (
 		<Link href={postUrl} className="ProfileGridItem block group" id={id.toString()}>
 			<div className="flex flex-col gap-2">
@@ -23,7 +20,14 @@ export const ProfileGridItem = (props: ProfileGridItemProps) => {
 					className="ProfileGridItem_ImageWrapper  w-full overflow-hidden rounded-md bg-muted"
 					ratio={9 / 16}
 				>
-					<Image src={thumbnailUrlImg[0]?.url} alt={title} fill className="object-cover" />
+					<Image
+						src={thumbnailUrl}
+						alt={title}
+						fill
+						sizes="(max-width: 550px) 50vw, 275px"
+						className="object-cover"
+						loading="eager"
+					/>
 				</AspectRatio>
 
 				<div className="flex flex-col">

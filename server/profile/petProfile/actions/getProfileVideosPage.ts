@@ -21,15 +21,11 @@ export const getProfileVideosPage = async (
 		where: {
 			petId: petId,
 		},
-
 		orderBy: {
 			id: 'desc',
 		},
-
 		take: limit + 1,
-
 		cursor: cursor ? { id: cursor } : undefined,
-
 		skip: cursor ? 1 : 0,
 
 		select: {

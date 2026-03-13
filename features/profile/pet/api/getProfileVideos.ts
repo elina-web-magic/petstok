@@ -1,5 +1,7 @@
-import { isNotNullOrUndefined } from '@/server/utils/guards'
-import type { GetProfileVideosParams, GetProfileVideosResponse } from '../../types'
+import type { GetProfileVideosResponse } from '@/server/profile/types'
+import type { GetProfileVideosParams } from '../../types'
+
+const PROFILE_VIDEOS_PAGE_SIZE = 6
 
 export const getProfileVideos = async (
 	params: GetProfileVideosParams
@@ -9,8 +11,11 @@ export const getProfileVideos = async (
 	const searchParams = new URLSearchParams()
 
 	searchParams.set('petId', String(petId))
+	searchParams.set('limit', String(PROFILE_VIDEOS_PAGE_SIZE))
 
-	if (!isNotNullOrUndefined(cursor)) searchParams.set('cursor', String(cursor))
+	if (cursor !== null && cursor !== undefined) {
+		searchParams.set('cursor', String(cursor))
+	}
 
 	const response = await fetch(`/api/profile/videos?${searchParams.toString()}`)
 

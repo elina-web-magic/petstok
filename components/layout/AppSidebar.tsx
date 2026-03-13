@@ -22,7 +22,7 @@ const items = [
 	},
 	{
 		title: 'Profile',
-		url: '/profile/1',
+		url: '/profile/Harry/20',
 		icon: User,
 	},
 ]

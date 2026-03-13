@@ -4,12 +4,13 @@ import type { RefObject } from 'react'
 
 type InfiniteScrollSentinelProps = {
 	sentinelRef: RefObject<HTMLDivElement | null>
+	className?: string
 }
 
 export const InfiniteScrollSentinel = (props: InfiniteScrollSentinelProps) => {
-	const { sentinelRef } = props
+	const { sentinelRef, className } = props
 
 	if (!sentinelRef) return null
 
-	return <div ref={sentinelRef}></div>
+	return <div className={className} ref={sentinelRef}></div>
 }

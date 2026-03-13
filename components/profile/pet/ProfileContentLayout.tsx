@@ -8,17 +8,15 @@ type ProfileContentLayoutProps = {
 const ProfileContentLayout = ({ petId }: ProfileContentLayoutProps) => {
 	return (
 		<div className="flex flex-col gap-4 ProfileContentLayout">
-			<div className="flex flex-col gap-4">
-				<Card className="w-full border-border/60 shadow-sm">
-					<CardHeader>
-						<CardTitle>Videos</CardTitle>
-					</CardHeader>
+			<Card className="w-full border-border/60 shadow-sm">
+				<CardHeader>
+					<CardTitle>Videos</CardTitle>
+				</CardHeader>
 
-					<CardContent>
-						<ProfileVideosQuerySection petId={petId} />
-					</CardContent>
-				</Card>
-			</div>
+				<CardContent>
+					<ProfileVideosQuerySection petId={petId} />
+				</CardContent>
+			</Card>
 		</div>
 	)
 }
