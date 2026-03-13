@@ -10,4 +10,4 @@ export type ProfileVideosGridProps = {
 	items: ProfileVideoItem[]
 }
 
-export type ProfileVideosStatus = 'loading' | 'error' | 'success'
+export type ProfileVideosStatus = 'pending' | 'error' | 'success'

@@ -12,7 +12,7 @@ type ProfileVideosSectionProps = {
 export const ProfileVideosSection = (props: ProfileVideosSectionProps) => {
 	const { items, status } = props
 
-	if (status === 'loading') {
+	if (status === 'pending') {
 		return <ProfileVideosGridSkeleton />
 	} else if (status === 'error') {
 		return (
