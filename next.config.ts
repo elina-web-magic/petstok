@@ -8,6 +8,14 @@ const bundleAnalyzer = withBundleAnalyzer({
 const nextConfig: NextConfig = {
 	output: 'standalone',
 	serverExternalPackages: ['@prisma/client', 'prisma', '@prisma/adapter-pg'],
+	images: {
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: 'res.cloudinary.com',
+			},
+		],
+	},
 }
 
 export default bundleAnalyzer(nextConfig)

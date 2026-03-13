@@ -22,9 +22,9 @@ export default async function PetProfilePage({ params }: PetProfilePageProps): P
 	if (!petProfile) notFound()
 
 	return (
-		<div className="mx-auto flex w-full flex-col gap-4 px-4 py-6">
+		<div className="PetProfilePage mx-auto flex w-full flex-col gap-4 px-4 py-6 flex h-dvh flex-col">
 			<PetProfileHeader profile={petProfile} />
-			<ProfileContentLayout />
+			<ProfileContentLayout petId={id} />
 		</div>
 	)
 }

@@ -1,6 +1,7 @@
 'use client'
 import { cva } from 'class-variance-authority'
 import { CheckCircle2Icon } from 'lucide-react'
+import type { globalSize } from '@/app/global.types'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { cn } from '@/lib/utils'
 
@@ -8,11 +9,11 @@ type DraftSavedAlertProps = {
 	title: string
 	description?: string
 	variant?: 'default' | 'secondary' | 'destructive'
-	size?: 'default' | 'xs' | 'sm' | 'lg'
+	size?: globalSize
 	className?: string
 }
 
-const buttonVariants = cva('max-w-md', {
+const savedAlertVariants = cva('max-w-md', {
 	variants: {
 		variant: {
 			default: 'bg-primary text-primary-foreground',
@@ -38,7 +39,7 @@ export default function DraftSavedAlert(props: DraftSavedAlertProps) {
 
 	return (
 		<div className="fixed top-6 left-1/2 -translate-x-1/2 z-1000">
-			<Alert className={cn(buttonVariants({ variant, size, className }))}>
+			<Alert className={cn(savedAlertVariants({ variant, size, className }))}>
 				<CheckCircle2Icon />
 				<AlertTitle>{title}</AlertTitle>
 				{description && <AlertDescription>{description}</AlertDescription>}

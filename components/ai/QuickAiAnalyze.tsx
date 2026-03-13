@@ -27,6 +27,7 @@ export default function QuickAiAnalyze(props: QuickAiAnalyzeProps) {
 		videoError,
 		referenceUrlsText,
 	} = props
+
 	return (
 		<div className="QuickAiAnalyze grid gap-4">
 			{/* ADD VIDEO URL */}
@@ -43,7 +44,7 @@ export default function QuickAiAnalyze(props: QuickAiAnalyzeProps) {
 			</Field>
 
 			{/* VIDEO PREVIEW */}
-			{!videoError && videoUrl.length > 0 ? (
+			{videoUrl.length > 0 && (
 				<div className="mt-3 space-y-2 h-64 relative">
 					<Preview
 						className="overflow-hidden rounded-lg h-full flex content-center items-center justify-center bg-[var(--ps-muted)]"
@@ -55,7 +56,8 @@ export default function QuickAiAnalyze(props: QuickAiAnalyzeProps) {
 						playsInline
 					/>
 				</div>
-			) : (
+			)}
+			{videoUrl.length > 0 && videoError && (
 				<div className="grid w-full max-w-md items-start gap-4">
 					<Alert>
 						<InfoIcon />
