@@ -16,7 +16,7 @@ export function Preview(props: VideoPreview) {
 	return (
 		<div className={className}>
 			<video
-				className="h-full object-cover"
+				className="VideoPreview_Video h-full object-cover"
 				src={videoUrl}
 				muted={muted}
 				controls={controls}
