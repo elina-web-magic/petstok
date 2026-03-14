@@ -1,7 +1,7 @@
 import { initialProcessingState } from '../../constants'
 import type { ProcessingEvent, ProcessingState } from '../../types'
 
-export type ProcessingAction =
+type ProcessingAction =
 	| { type: 'STREAM_RESET' }
 	| { type: 'STREAM_STARTED' }
 	| { type: 'EVENT_RECEIVED'; payload: ProcessingEvent }
