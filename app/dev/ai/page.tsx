@@ -3,10 +3,17 @@ import VideoUrlUploadPanel from '@/components/dev/VideoUrlUploadPanel'
 
 type DevUploadPageProps = {
 	searchParams: SearchParams
+	onProcessingStarted: () => void
+	onProcessingReset: () => void
 	errors?: ValidationgErrors
 }
 
-const DevUploadPage = async ({ searchParams, errors }: DevUploadPageProps) => {
+const DevUploadPage = ({
+	searchParams,
+	errors,
+	onProcessingStarted,
+	onProcessingReset,
+}: DevUploadPageProps) => {
 	const initialVideoUrl = typeof searchParams.video === 'string' ? searchParams.video : ''
 
 	return (
@@ -15,6 +22,8 @@ const DevUploadPage = async ({ searchParams, errors }: DevUploadPageProps) => {
 			<VideoUrlUploadPanel
 				initialVideoUrl={initialVideoUrl}
 				initialVideoError={errors?.videoError}
+				onProcessingStarted={onProcessingStarted}
+				onProcessingReset={onProcessingReset}
 			/>
 		</div>
 	)

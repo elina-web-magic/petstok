@@ -25,6 +25,8 @@ import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 
 type VideoUrlUploadPanelProps = {
+	onProcessingStarted: () => void
+	onProcessingReset: () => void
 	initialVideoUrl?: string
 	initialVideoError?: boolean
 }
@@ -34,6 +36,8 @@ const VIDEO_UPLOAD_DRAFT_STORAGE_KEY = 'petstok.video-upload.draft'
 const VideoUrlUploadPanel = ({
 	initialVideoUrl = '',
 	initialVideoError,
+	onProcessingStarted,
+	onProcessingReset,
 }: VideoUrlUploadPanelProps) => {
 	const [videoUrl, setVideoUrl] = useState(initialVideoUrl)
 	const [referenceUrlsText, setReferenceUrlsText] = useState('')
@@ -58,6 +62,7 @@ const VideoUrlUploadPanel = ({
 		setErrorMessage(null)
 		setResult(null)
 		setShowDetails(false)
+		onProcessingReset()
 
 		try {
 			const animalReferenceImageUrls = referenceUrlsText
@@ -82,10 +87,12 @@ const VideoUrlUploadPanel = ({
 			}
 
 			const data = (await response.json()) as QuickVideoAiResult
+			onProcessingStarted()
 			setResult(data)
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error'
 			setErrorMessage(message)
+			onProcessingReset()
 			setResult(null)
 		} finally {
 			setLoading(false)

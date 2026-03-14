@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react'
 import { Logger } from '@/lib/logger/logger'
 import { ConsoleSink } from '@/lib/logger/sinks'
-import { initialProcessingState, processingReducer } from './processing/reducer'
-import type { ProcessingEvent } from './processing/types'
+import { initialProcessingState } from '../constants'
+import type { ProcessingEvent } from '../types'
+import { processingReducer } from './processing/reducer'
 
 const logger = new Logger({
 	scope: 'useProcessingStream',

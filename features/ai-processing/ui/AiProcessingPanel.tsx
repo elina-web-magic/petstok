@@ -4,15 +4,15 @@ import { AlertCircle, CheckCircle2, Loader2, Sparkles } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import type { ProcessingState } from '../model/processing/types'
-import { stepLabels as statusLabels } from './constants'
+import { stepLabels as statusLabels } from '../constants'
+import type { ProcessingState } from '../types'
 import { ProcessingEventList } from './ProcessingEventList'
 
-type AIProcessingPanelProps = {
+type AiProcessingPanelProps = {
 	state: ProcessingState
 }
 
-export const AIProcessingPanel = ({ state }: AIProcessingPanelProps) => {
+export const AiProcessingPanel = ({ state }: AiProcessingPanelProps) => {
 	const { status, events, isStreaming, error } = state
 
 	return (

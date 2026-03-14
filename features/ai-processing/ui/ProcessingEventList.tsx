@@ -3,8 +3,8 @@
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
-import type { ProcessingEvent, ProcessingStep } from '../model/processing/types'
-import { stepLabels } from './constants'
+import { stepLabels } from '../constants'
+import type { ProcessingEvent, ProcessingStep } from '../types'
 
 type ProcessingEventListProps = {
 	events: ProcessingEvent[]

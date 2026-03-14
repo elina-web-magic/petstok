@@ -1,13 +1,4 @@
-export const processingSteps = [
-	'queued',
-	'processing_started',
-	'frames_extracted',
-	'title_generated',
-	'hashtags_generated',
-	'moderation_completed',
-	'completed',
-	'error',
-] as const
+import type { processingSteps } from './constants'
 
 export type ProcessingStep = (typeof processingSteps)[number]
 

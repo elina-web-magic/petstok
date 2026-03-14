@@ -1,17 +1,11 @@
-import type { ProcessingEvent, ProcessingState } from './types'
+import { initialProcessingState } from '../../constants'
+import type { ProcessingEvent, ProcessingState } from '../../types'
 
 export type ProcessingAction =
 	| { type: 'STREAM_RESET' }
 	| { type: 'STREAM_STARTED' }
 	| { type: 'EVENT_RECEIVED'; payload: ProcessingEvent }
 	| { type: 'STREAM_FAILED'; payload: string }
-
-export const initialProcessingState: ProcessingState = {
-	status: null,
-	events: [],
-	isStreaming: false,
-	error: null,
-}
 
 export const processingReducer = (
 	state: ProcessingState,
