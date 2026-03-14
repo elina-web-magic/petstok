@@ -56,6 +56,7 @@ export const getProfileVideosPage = async (
 			views: post.views,
 			thumbnailUrl: frames[0]?.url ?? '',
 			postUrl: `/post/${post.id}`,
+			videoUrl: post.videoUrl,
 		}
 	})
 

@@ -192,6 +192,7 @@ type ProfileVideoGridItem = {
   thumbnailUrl: string
   views: number
   postUrl: string
+  videoUrl: string
 }
 
 ```
@@ -275,7 +276,6 @@ Displayed when the profile has no uploaded videos.
 
 Example message: No videos uploaded yet.
 
-
 ---
 
 ## Error State
@@ -293,7 +293,6 @@ To support data-heavy UI scenarios, the grid should follow several rendering pri
 Each card must use a stable key.
 
 key = video.id
-
 
 ---
 
@@ -317,7 +316,6 @@ Only store:
 - next cursor
 - loading state
 
-
 ## Component Structure
 
 Recommended component hierarchy:
@@ -329,7 +327,6 @@ ProfilePage (Server Component)
 │   │   ├─ VideoCard
 │   │   └─ InfiniteLoadTrigger
 │   └─ ProfileSidePanel
-
 
 ## Implementation Plan
 
@@ -381,7 +378,6 @@ Includes:
 - loading next page
 - appending items
 
-
 ## Performance Considerations
 
 The profile page should be designed with data-heavy UI scenarios in mind.
@@ -394,7 +390,6 @@ Key considerations:
 - preventing duplicate requests
 
 These patterns are commonly used in large-scale social media applications.
-
 
 ## Definition of Done
 

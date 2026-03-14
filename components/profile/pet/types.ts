@@ -4,6 +4,7 @@ export type ProfileVideoItem = {
 	thumbnailUrl: string
 	views: number
 	postUrl: string
+	videoUrl: string
 }
 
 export type ProfileVideosGridProps = {
