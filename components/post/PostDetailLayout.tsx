@@ -9,10 +9,10 @@ export const PostDetailLayout = (props: PostDetailLayoutProps) => {
 	const { videoSlot, commentsSlot } = props
 
 	return (
-		<section className="mx-auto flex w-full max-w-7xl flex-col overflow-hidden rounded-2xl border bg-background lg:h-[calc(100vh-120px)] lg:flex-row">
-			<div className="min-w-0 flex-1 border-b bg-black lg:border-b-0 lg:border-r">{videoSlot}</div>
+		<section className="PostDetailLayout mx-auto flex w-full p-0 flex-col h-full overflow-hidden rounded-2xl bg-background lg:flex-row">
+			<div className="min-w-0 bg-black max-h-3/5 lg:max-h-full">{videoSlot}</div>
 
-			<aside className="w-full shrink-0 bg-background lg:w-[420px] xl:w-[460px]">
+			<aside className="w-full shrink-0 bg-background lg:w-[420px] xl:w-[460px] lg:max-h-full">
 				{commentsSlot}
 			</aside>
 		</section>

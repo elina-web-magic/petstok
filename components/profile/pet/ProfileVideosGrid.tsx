@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import CommentsPanel from '@/components/post/CommentsPanel'
 import { PostDetailLayout } from '@/components/post/PostDetailLayout'
 import { VideoSection } from '@/components/post/VideoSection'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { ProfileGridItem } from './ProfileGridItem'
 import type { ProfileVideosGridProps } from './types'
 
@@ -23,7 +23,7 @@ export const ProfileVideosGrid = ({ items }: ProfileVideosGridProps) => {
 	const defaultPost = useMemo(() => items[0] ?? null, [items])
 
 	const [selectedPost, setSelectedPost] = useState<ProfilePostItem | null>(defaultPost)
-	const [isOpen, setIsOpen] = useState(false)
+	const [isOpen, setIsOpen] = useState(true)
 
 	return (
 		<>
@@ -49,13 +49,14 @@ export const ProfileVideosGrid = ({ items }: ProfileVideosGridProps) => {
 					</button>
 				))}
 			</div>
-			<Dialog open={isOpen} onOpenChange={setIsOpen}>
-				<DialogContent className="max-w-6xl border-none bg-transparent p-0 shadow-none">
+			<Dialog open={true} onOpenChange={setIsOpen}>
+				<DialogContent className="DialogContent ProfileVideo_DialogContent border-none bg-transparent px-8 shadow-none Dialog OpenedPost max-w-full h-screen flex flex-col items-center justify-center">
+					<DialogTitle className="sr-only">Post detail</DialogTitle>
 					{selectedPost ? (
 						<PostDetailLayout
 							videoSlot={
 								<VideoSection
-									videoUrl={selectedPost.postUrl}
+									videoUrl={selectedPost.videoUrl}
 									title={selectedPost.title}
 									description={selectedPost.description ?? null}
 									tags={selectedPost.tags ?? []}
