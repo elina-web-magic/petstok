@@ -78,7 +78,7 @@ export const ProfileGridItem = (props: ProfileGridItemProps) => {
 			</AspectRatio>
 
 			<div className="flex flex-col">
-				<p className="line-clamp-2 text-sm font-medium">{title}</p>
+				<p className="line-clamp-2 text-sm font-medium whitespace-nowrap text-ellipsis">{title}</p>
 				<p className="text-xs text-muted-foreground">{views} views</p>
 			</div>
 		</div>

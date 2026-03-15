@@ -21,7 +21,7 @@ export const ProfileVideosGrid = ({ items }: ProfileVideosGridProps) => {
 
 	return (
 		<>
-			<div className="ProfileVideosGrid grid grid-cols-2 gap-3 md:grid-cols-3">
+			<div className="ProfileVideosGrid grid gap-3 lg:grid-cols-5 grid-cols-1 sm:grid-cols-3">
 				{items.map((item) => (
 					<ProfileVideoGridButton key={item.id} item={item} onClick={() => handleOpenClick(item)} />
 				))}
