@@ -9,6 +9,7 @@ type Comment = {
 	authorName: string
 	message: string
 	createdAt: string
+	isOptimistic?: boolean
 }
 
 type CommentsPanelProps = {
@@ -34,8 +35,17 @@ const CommentsPanel = (props: CommentsPanelProps) => {
 		const trimmedValue = value.trim()
 		if (trimmedValue.length === 0) return
 
-		setIsSubmitting(true)
+		const optimisticComment: Comment = {
+			id: crypto.randomUUID(),
+			authorName: 'You',
+			message: trimmedValue,
+			createdAt: Date.now().toFixed(),
+			isOptimistic: true,
+		}
 
+		setComments((prev) => [optimisticComment, ...prev])
+		setValue('')
+		setIsSubmitting(true)
 		try {
 			const response = await fetch(`/api/posts/${postId}/comments`, {
 				method: 'POST',
@@ -49,16 +59,24 @@ const CommentsPanel = (props: CommentsPanelProps) => {
 
 			if (!response.ok) {
 				const text = await response.text()
-				setError(`Failed to add comment: ${text}`)
-				return
+				throw new Error(text || 'Failed to add comment')
 			}
 			const data = (await response.json()) as Comment
 
-			setComments((prev) => [data, ...prev])
-			setValue('')
+			setComments((prev) =>
+				prev.map((comment) =>
+					comment.id === optimisticComment.id
+						? {
+								...data,
+								isOptimistic: false,
+							}
+						: comment
+				)
+			)
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error'
 			setError(message)
+			setComments((prev) => prev.filter((comment) => comment.id !== optimisticComment.id))
 		} finally {
 			setIsSubmitting(false)
 		}
@@ -130,5 +148,3 @@ const CommentsPanel = (props: CommentsPanelProps) => {
 }
 
 export default CommentsPanel
-
-export type { Comment }
