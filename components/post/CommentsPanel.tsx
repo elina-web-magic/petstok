@@ -1,6 +1,8 @@
 'use client'
 
 import { type ComponentProps, useState } from 'react'
+import { Button } from '../ui/button'
+import { Spinner } from '../ui/spinner'
 
 type Comment = {
 	id: string
@@ -10,36 +12,55 @@ type Comment = {
 }
 
 type CommentsPanelProps = {
+	postId: number
 	initialComments?: Comment[]
 }
 
-const CommentsPanel = ({ initialComments = [] }: CommentsPanelProps) => {
+const CommentsPanel = (props: CommentsPanelProps) => {
+	const { initialComments = [], postId } = props
+
 	const [comments, setComments] = useState<Comment[]>(initialComments)
 	const [value, setValue] = useState('')
+	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	const [error, setError] = useState<string | null>(null)
 
-	const handleSubmit: ComponentProps<'form'>['onSubmit'] = (event) => {
+	const handleSubmit: ComponentProps<'form'>['onSubmit'] = async (event) => {
 		event.preventDefault()
 
 		setError(null)
+		if (isSubmitting === true) return
+
+		const trimmedValue = value.trim()
+		if (trimmedValue.length === 0) return
+
+		setIsSubmitting(true)
 
 		try {
-			const trimmedValue = value.trim()
+			const response = await fetch(`/api/posts/${postId}/comments`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					message: trimmedValue,
+				}),
+			})
 
-			if (trimmedValue.length === 0) return
-
-			const newComment: Comment = {
-				id: crypto.randomUUID(),
-				authorName: 'You',
-				message: trimmedValue,
-				createdAt: new Date().toLocaleString(),
+			if (!response.ok) {
+				const text = await response.text()
+				setError(`Failed to add comment: ${text}`)
+				return
 			}
+			const data = (await response.json()) as Comment
 
-			setComments((prev) => [newComment, ...prev])
+			setComments((prev) => [data, ...prev])
 			setValue('')
-		} catch {
-			setError('Failed to add comment')
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Unknown error'
+			setError(message)
+		} finally {
+			setIsSubmitting(false)
 		}
 	}
 
@@ -58,13 +79,11 @@ const CommentsPanel = ({ initialComments = [] }: CommentsPanelProps) => {
 				) : null}
 
 				{comments.length === 0 ? (
-					<div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
-						No comments yet
-					</div>
+					<div className="rounded-xl text-sm text-muted-foreground">No comments yet</div>
 				) : (
 					<div className="space-y-4">
 						{comments.map((comment) => (
-							<article key={comment.id} className="rounded-xl border p-3">
+							<article key={comment.id} className="rounded-xl border border p-3 ">
 								<div className="mb-1 flex items-center justify-between gap-3">
 									<p className="text-sm font-medium">{comment.authorName}</p>
 									<span className="text-xs text-muted-foreground">{comment.createdAt}</span>
@@ -80,20 +99,29 @@ const CommentsPanel = ({ initialComments = [] }: CommentsPanelProps) => {
 			<div className="border-t px-4 py-4">
 				<form className="space-y-3" onSubmit={handleSubmit}>
 					<textarea
-						className="min-h-[96px] w-full resize-none rounded-xl border bg-background px-3 py-2 text-sm outline-none"
+						className={`${error && 'border-red-600'} min-h-[96px] w-full resize-none rounded-xl border border-orange-800 bg-background focus:border-orange-500 px-3 py-2 text-sm outline-none`}
 						placeholder="Write a comment..."
 						value={value}
 						onChange={(event) => setValue(event.target.value)}
 					/>
 
 					<div className="flex justify-end">
-						<button
+						<Button
 							type="submit"
-							className="rounded-full bg-foreground px-4 py-2 text-sm text-background transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-							disabled={!value.trim()}
+							variant="secondary"
+							size="lg"
+							className="rounded-full px-4 py-2 text-sm text-background transition-opacity"
+							disabled={!value.trim() || isSubmitting}
 						>
-							Post comment
-						</button>
+							{isSubmitting ? (
+								<div className="WaitSpinner flex flex-row no-wrap gap-4 justify-center items-center">
+									<span>Please wait</span>
+									<Spinner data-icon="inline-start" />
+								</div>
+							) : (
+								'Post comment'
+							)}
+						</Button>
 					</div>
 				</form>
 			</div>

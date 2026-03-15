@@ -12,7 +12,7 @@ export const VideoSection = ({ videoUrl, title, description, tags }: VideoSectio
 	return (
 		<div className="VideoSection flex h-full flex-col bg-black text-white">
 			<div className="flex min-h-0 flex-1 items-center justify-center bg-black">
-				<div className="w-auto lg:w-full overflow-hidden rounded-2xl bg-zinc-950 aspect-video max-h-9/10">
+				<div className="w-auto md:w-full overflow-hidden rounded-2xl bg-zinc-950 aspect-video max-h-9/10">
 					<div className="space-y-2 h-full flex items-center justify-center">
 						<Preview
 							className="overflow-hidden rounded-lg h-full flex items-center justify-center bg-[var(--ps-muted)] aspect-video"

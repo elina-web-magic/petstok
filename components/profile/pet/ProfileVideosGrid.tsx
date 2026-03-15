@@ -39,7 +39,7 @@ export const ProfileVideosGrid = ({ items }: ProfileVideosGridProps) => {
 									tags={selectedPost.tags ?? []}
 								/>
 							}
-							commentsSlot={<CommentsPanel initialComments={[]} />}
+							commentsSlot={<CommentsPanel initialComments={[]} postId={selectedPost.id} />}
 						/>
 					) : null}
 				</DialogContent>
