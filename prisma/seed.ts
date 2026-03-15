@@ -178,14 +178,12 @@ const logger = new Logger({
 	sinks: [new ConsoleSink()],
 })
 
-export async function main() {
+export async function seedDatabase() {
 	const requestId = crypto.randomUUID()
 	const log = logger.child({ requestId })
 	const prisma = getPrisma()
 
-	if (!prisma) {
-		throw new Error('Database not available')
-	}
+	if (!prisma) throw new Error('Database not available')
 
 	await prisma.post.deleteMany()
 	await prisma.pet.deleteMany()
@@ -220,11 +218,13 @@ export async function main() {
 	log.info('🎉 Seed finished')
 }
 
-main()
-	.catch(() => {
-		process.exit(1)
-	})
-	.finally(async () => {
-		const prisma = getPrisma()
-		await prisma.$disconnect()
-	})
+if (require.main === module) {
+	seedDatabase()
+		.catch(() => {
+			process.exit(1)
+		})
+		.finally(async () => {
+			const prisma = getPrisma()
+			await prisma.$disconnect()
+		})
+}

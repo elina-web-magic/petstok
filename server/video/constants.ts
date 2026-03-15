@@ -1,1 +1,1 @@
-export const QUICK_AI_FRAME_TIMESTAMPS = [1, 3, 5]
+export const QUICK_AI_FRAME_TIMESTAMPS = [0, 3, 5]

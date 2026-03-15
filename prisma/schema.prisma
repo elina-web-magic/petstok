@@ -19,6 +19,22 @@ datasource db {
   provider = "postgresql"
 }
 
+model Comment {
+  id        Int      @id @default(autoincrement())
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  postId   Int
+  authorId Int
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+  @@index([authorId])
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String?
@@ -27,6 +43,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   pets      Pet[]
+
+  comments Comment[]
 }
 
 model Pet {
@@ -46,17 +64,18 @@ model Pet {
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   title     String
   videoUrl  String
-  likes     Int      @default(0)
-  views     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  likes     Int       @default(0)
+  views     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   petId     Int
-  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
-  score     Float    @default(0)
+  pet       Pet       @relation(fields: [petId], references: [id], onDelete: Cascade)
+  score     Float     @default(0)
   video     Video?
+  comments  Comment[]
 
   @@index([createdAt])
   @@index([petId])
