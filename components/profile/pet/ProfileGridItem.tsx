@@ -30,7 +30,7 @@ export const ProfileGridItem = (props: ProfileGridItemProps) => {
 	}, [])
 
 	return (
-		<div className="ProfileGridItem flex flex-col gap-2 text-left" data-postUrl={postUrl}>
+		<div className="ProfileGridItem flex flex-col gap-2 text-left" data-posturl={postUrl}>
 			<AspectRatio
 				className="ProfileGridItem_ImageWrapper w-full overflow-hidden rounded-md bg-muted"
 				ratio={9 / 16}
