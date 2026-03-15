@@ -1,3 +1,4 @@
+import { PET_ID } from '@/globalConstants'
 import { importCloudinaryVideosByTag } from '@/server/dev/importCloudinaryVideosByTag'
 
 export const runtime = 'nodejs'
@@ -8,7 +9,7 @@ export async function POST() {
 
 	const result = await importCloudinaryVideosByTag({
 		tag: 'alisa',
-		petId: 31,
+		petId: PET_ID,
 	})
 
 	return Response.json(

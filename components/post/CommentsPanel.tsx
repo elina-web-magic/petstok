@@ -65,13 +65,13 @@ const CommentsPanel = (props: CommentsPanelProps) => {
 	}
 
 	return (
-		<section className="flex h-full flex-col bg-background">
-			<div className="border-b px-4 py-4">
+		<section className="CommentsPanel flex h-full flex-col bg-background">
+			<div className="flex-none border-b px-4 py-4">
 				<h2 className="text-base font-semibold">Comments</h2>
 				<p className="text-sm text-muted-foreground">Join the discussion under this post.</p>
 			</div>
 
-			<div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+			<div className="CommentsSection min-h-0 flex-1 overflow-y-auto px-4 py-4">
 				{error ? (
 					<div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
 						{error}
@@ -81,9 +81,9 @@ const CommentsPanel = (props: CommentsPanelProps) => {
 				{comments.length === 0 ? (
 					<div className="rounded-xl text-sm text-muted-foreground">No comments yet</div>
 				) : (
-					<div className="space-y-4">
+					<div className="Comments space-y-4">
 						{comments.map((comment) => (
-							<article key={comment.id} className="rounded-xl border border p-3 ">
+							<article key={comment.id} className="rounded-xl border border-black/10 p-3">
 								<div className="mb-1 flex items-center justify-between gap-3">
 									<p className="text-sm font-medium">{comment.authorName}</p>
 									<span className="text-xs text-muted-foreground">{comment.createdAt}</span>
@@ -96,10 +96,10 @@ const CommentsPanel = (props: CommentsPanelProps) => {
 				)}
 			</div>
 
-			<div className="border-t px-4 py-4">
+			<div className="CommentsSubmit flex-none border-t px-4 py-4">
 				<form className="space-y-3" onSubmit={handleSubmit}>
 					<textarea
-						className={`${error && 'border-red-600'} min-h-[96px] w-full resize-none rounded-xl border border-orange-800 bg-background focus:border-orange-500 px-3 py-2 text-sm outline-none`}
+						className={`${error && 'border-red-600'} min-h-[96px] w-full resize-none rounded-xl border border-orange-800 bg-background px-3 py-2 text-sm outline-none focus:border-orange-500`}
 						placeholder="Write a comment..."
 						value={value}
 						onChange={(event) => setValue(event.target.value)}
@@ -114,7 +114,7 @@ const CommentsPanel = (props: CommentsPanelProps) => {
 							disabled={!value.trim() || isSubmitting}
 						>
 							{isSubmitting ? (
-								<div className="WaitSpinner flex flex-row no-wrap gap-4 justify-center items-center">
+								<div className="WaitSpinner flex flex-row items-center justify-center gap-4 no-wrap">
 									<span>Please wait</span>
 									<Spinner data-icon="inline-start" />
 								</div>

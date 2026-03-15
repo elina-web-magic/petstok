@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { USER_ID } from '@/globalConstants'
 import { Logger } from '@/lib/logger/logger'
 import { ConsoleSink } from '@/lib/logger/sinks'
 import { getPrisma } from '@/lib/prisma'
@@ -19,8 +20,6 @@ const logger = new Logger({
 	minLevel: 'debug',
 	sinks: [new ConsoleSink()],
 })
-
-const AUTHOR_ID = 22
 
 export const POST = async (request: Request, context: RouteContext) => {
 	const prisma = getPrisma()
@@ -46,38 +45,28 @@ export const POST = async (request: Request, context: RouteContext) => {
 		if (trimmedMessage.length === 0)
 			return NextResponse.json({ error: 'Message is required' }, { status: 400 })
 
-		const post = await prisma.post.findUnique({
-			where: {
-				id: parsedPostId,
-			},
-			select: {
-				id: true,
-			},
-		})
-
-		if (!post) return NextResponse.json({ error: 'Post not found' }, { status: 404 })
-
 		const comment = await prisma.comment.create({
 			data: {
 				message: trimmedMessage,
 				postId: parsedPostId,
-				authorId: AUTHOR_ID,
+				authorId: USER_ID,
 			},
 			select: {
 				id: true,
 				message: true,
 				createdAt: true,
-				author: {
-					select: {
-						id: true,
-						name: true,
-					},
-				},
 			},
 		})
 
-		log.info('Commend created successfully')
-		return NextResponse.json(comment, { status: 201 })
+		return NextResponse.json(
+			{
+				id: String(comment.id),
+				message: comment.message,
+				createdAt: comment.createdAt.toISOString(),
+				authorName: 'You',
+			},
+			{ status: 201 }
+		)
 	} catch {
 		return NextResponse.json({ error: 'Failed to create comment' }, { status: 500 })
 	}
