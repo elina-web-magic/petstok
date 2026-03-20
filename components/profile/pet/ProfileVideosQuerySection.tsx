@@ -4,7 +4,7 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { useCallback, useRef } from 'react'
 import { InfiniteScrollSentinel } from '@/components/custom-ui/InfiniteScrollSentinel'
 import { getProfileVideos } from '@/features/profile/pet/api/getProfileVideos'
-import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
+import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
 import { ProfileVideosSection } from './ProfileVideosSection'
 
 type ProfileVideosQuerySectionProps = {
