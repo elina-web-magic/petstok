@@ -1,16 +1,16 @@
+import { DEFAULT_HEADERS } from '@/globalConstants'
 import { Logger } from '../logger/logger'
 import { ConsoleSink } from '../logger/sinks'
 
-export type ApiRequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-
-export type ApiRequestOptions = {
+type ApiRequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+type ApiRequestOptions = {
 	method?: ApiRequestMethod
 	headers?: Record<string, string>
 	body?: string
 	signal?: AbortSignal
 }
 
-export type ApiErrorCode =
+type ApiErrorCode =
 	| 'NETWORK_ERROR'
 	| 'UNAUTHORIZED'
 	| 'FORBIDDEN'
@@ -19,14 +19,10 @@ export type ApiErrorCode =
 	| 'SERVER_ERROR'
 	| 'UNKNOWN_ERROR'
 
-export type ApiError = {
+type ApiError = {
 	code: ApiErrorCode
 	message: string
 	status?: number
-}
-
-export const DEFAULT_HEADERS = {
-	'Content-Type': 'application/json',
 }
 
 const logger = new Logger({

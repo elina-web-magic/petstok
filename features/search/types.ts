@@ -15,5 +15,3 @@ export type SearchResponse = {
 	items: SearchPostItem[]
 	total: number
 }
-
-export type SearchState = 'idle' | 'loading' | 'success' | 'error'

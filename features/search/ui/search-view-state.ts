@@ -1,4 +1,4 @@
-export type SearchViewState = 'idle' | 'loading' | 'results' | 'empty' | 'error'
+type SearchViewState = 'idle' | 'loading' | 'results' | 'empty' | 'error'
 
 export const getSearchViewState = ({
 	isLoading,
@@ -9,17 +9,9 @@ export const getSearchViewState = ({
 	isError: boolean
 	hasItems: boolean
 }): SearchViewState => {
-	if (isLoading) {
-		return 'loading'
-	}
-
-	if (isError) {
-		return 'error'
-	}
-
-	if (hasItems) {
-		return 'results'
-	}
+	if (isLoading) return 'loading'
+	if (isError) return 'error'
+	if (hasItems) return 'results'
 
 	return 'empty'
 }

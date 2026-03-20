@@ -1,6 +1,7 @@
 'use client'
 
 import { type ComponentProps, useState } from 'react'
+import { DEFAULT_HEADERS } from '@/globalConstants'
 import { Button } from '../ui/button'
 import { Spinner } from '../ui/spinner'
 
@@ -49,9 +50,7 @@ const CommentsPanel = (props: CommentsPanelProps) => {
 		try {
 			const response = await fetch(`/api/posts/${postId}/comments`, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				headers: DEFAULT_HEADERS,
 				body: JSON.stringify({
 					message: trimmedValue,
 				}),
