@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { type ChangeEvent, type MouseEvent, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, FieldLabel } from '@/components/ui/field'
+import { DEFAULT_HEADERS } from '@/globalConstants'
 import type { QuickVideoAiResult } from '@/server/ai/types'
 import type { CreatePostResponse } from '@/server/posts/types'
 import AnalyzeResult from '../ai/AnalyzeResult'
@@ -72,9 +73,7 @@ const VideoUrlUploadPanel = ({
 
 			const response = await fetch('/api/ai/quick-video-check', {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				headers: DEFAULT_HEADERS,
 				body: JSON.stringify({
 					videoUrl,
 					animalReferenceImageUrls,
@@ -106,9 +105,7 @@ const VideoUrlUploadPanel = ({
 		try {
 			const response = await fetch('/api/posts', {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				headers: DEFAULT_HEADERS,
 				body: JSON.stringify({
 					videoUrl,
 					title,
