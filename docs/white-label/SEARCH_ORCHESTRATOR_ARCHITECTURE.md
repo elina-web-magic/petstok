@@ -1,127 +1,162 @@
 # Search Orchestrator Architecture (Zoom-In)
 
 This document provides a "zoomed-in" view of the **Search Orchestrator** layer from the main transport search architecture.  
-It details the internal pipeline that executes when a search request enters the orchestrator, showing exactly how the module handles fan-out, streaming, and resilience without leaking logic to the UI.
+It details the internal pipeline that executes when a search request enters the orchestrator, including **request builders**, adapter fan-out, normalization, and resilience handling.
+
+---
 
 ## Internal Pipeline Steps
 
 ### 1. Provider Selection
 
 Reads the incoming search parameters and applies the `White-Label Config`.  
-It decides exactly which transport providers (e.g., Bus, Train, Ferry) should be queried for this specific partner and route (like Dumbledore deciding which magical schools to invite).  
-**Why:** prevents unnecessary API calls for disabled integrations.
+It decides exactly which transport providers (e.g., Bus, Train, Ferry) should be queried (like Dumbledore choosing which magical schools to invite).  
+**Why:** avoids unnecessary API calls and keeps orchestration deterministic.
 
-### 2. Adapter Fan-Out
+---
 
-Takes the list of selected providers and triggers their respective adapters in parallel.  
-It passes the normalized search parameters down, waiting for raw data streams to return (like dispatching owl messengers simultaneously in all directions).  
-**Why:** isolates the orchestration from the low-level HTTP and provider-specific contracts.
+### 2. Request Builders (Provider Mapping Layer)
 
-### 3. Per-Provider Normalization
+Transforms **TransportSearchParams → Provider-specific params → URLSearchParams**.  
+Each provider has its own mapper and query builder (like translating one spell into different magical dialects).
 
-Processes raw payloads into the shared domain shape **immediately** as each provider responds.  
-Instead of gathering all responses in a single batch, the orchestrator normalizes them on the fly (like translating each foreign scroll the moment the owl drops it).  
-**Why:** eliminates the "wait-for-all" bottleneck, enabling progressive UI updates.
+Example:
 
-### 4. Provider Cache
+- `mapTransportSearchToBusParams`
+- `buildBusQueryParams`
 
-Stores the normalized results for each provider independently, **before** the final merge.  
-If a specific API fails on a subsequent search, the orchestrator can pull stale routes for that provider while fetching fresh data for others (like using an old potion recipe when fresh ingredients are delayed).  
-**Why:** per-provider cache dramatically increases resilience compared to caching one massive merged array.
+**Why:** isolates provider contracts and prevents them from leaking into orchestrator or UI.
 
-### 5. Merge & Accumulate
+---
 
-Adds the newly normalized provider results to the existing result list in memory.  
-It incrementally sorts and updates the main response, yielding partial arrays back to the Search Hook (like arranging arriving participants into the official list as they enter the hall).  
-**Why:** supports streaming and progressive results without causing layout shifts or blocking delays.
+### 3. Adapter Fan-Out
+
+Triggers all selected provider adapters in parallel using the same domain input.  
+Each adapter internally uses its builder to prepare the request and call the API (like sending multiple owls at once, each speaking its own language).  
+**Why:** enables parallel execution and keeps orchestrator unaware of HTTP details.
+
+---
+
+### 4. Per-Provider Normalization
+
+Each adapter response is normalized immediately into `TransportSearchResult[]`.  
+Normalization happens per provider without waiting for others (like translating scrolls the moment they arrive).  
+**Why:** removes "wait-for-all" bottleneck and prepares data for merging.
+
+---
+
+### 5. Provider Cache
+
+Stores normalized results per provider before merging.  
+If one provider fails later, cached data can still be used (like reusing an old potion when ingredients are missing).  
+**Why:** improves resilience and reduces dependency on live API availability.
+
+---
+
+### 6. Merge & Accumulate
+
+Combines normalized results into a single array.  
+With current implementation (`Promise.allSettled`), only fulfilled results are merged (like assembling a list from the messengers who successfully returned).  
+**Why:** supports partial results and keeps UI responsive even under failure.
 
 ---
 
 ## Resilience & Policies (Ghost Layers)
 
-The orchestrator wraps the execution steps with stability policies to protect the UI.
-
 ### Timeout Policy
 
-Limits how long the orchestrator waits for any single adapter.  
-If the Ferry API hangs for 30 seconds, the orchestrator aborts that specific promise (`Promise.race`) and proceeds with Bus and Train results.  
-**Why:** prevents one slow integration from blocking the entire search experience.
-
-### Failure Strategy
-
-Catches errors from individual adapters.  
-Instead of rejecting the entire search orchestrator promise, it logs the error, returns a partial dataset, and warns the user.  
-**Why:** in B2B transport systems, partial results are always better than a total crash.
-
-### Retry Policy
-
-Defines safe conditions for retrying failed adapter calls (e.g., network timeout vs 401 Unauthorized).  
-**Why:** improves success rates for flaky external APIs invisibly to the UI.
+Limits execution time of each provider request.  
+If one provider is too slow, it gets cancelled while others continue (like abandoning a delayed owl).  
+**Why:** prevents long blocking operations.
 
 ---
 
-## Architecture Diagram
+### Failure Strategy
+
+Uses `Promise.allSettled` to collect all results without failing the entire flow.  
+Failed providers are logged, while successful ones are returned (like ignoring lost messages but continuing the mission).  
+**Why:** ensures partial results instead of total failure.
+
+---
+
+### Retry Policy
+
+Defines retry conditions for transient errors (e.g., network issues).  
+Should be implemented at adapter or orchestrator level.  
+**Why:** increases robustness for unreliable APIs.
+
+---
+
+## Recommended Boundary
+
+- Orchestrator = coordination + resilience
+- Builders = provider request mapping
+- Adapters = API execution
+- Normalizers = response mapping
+
+This separation ensures clean architecture and testability (like separating spell casting, translation, and execution across different magical roles).
+
+---
 
 ```mermaid
 %%{init: {"flowchart": {"padding": 35}}}%%
 flowchart TB
-    %% External Dependencies
+    %% External
     INPUT([Search Request])
     CONFIG([White-Label Config])
     OUTPUT([Normalized UI State])
-    ADAPTERS([External Adapters])
+    ADAPTERS([External APIs])
 
     subgraph Orchestrator [Search Orchestrator Pipeline]
+
         SELECT[Provider Selection]
-        EXEC[Adapter Fan-out]
+
+        BUILD[Request Builders]
         
+        EXEC[Adapter Fan-out]
+
         %% Policies
         TIMEOUT>Timeout Policy]
         FAILURE>Failure Strategy]
-        
-        %% Force Policies and EXEC to sit below SELECT
-        SELECT ~~~ TIMEOUT
-        SELECT ~~~ FAILURE
-        
+
         NORMALIZE[Per-Provider Normalization]
         CACHE[(Provider Cache)]
         MERGE[Merge & Accumulate]
     end
 
-    %% Flow: Inputs to Pipeline
+    %% Input flow
     INPUT --> SELECT
     CONFIG -.-> SELECT
 
-    SELECT --> EXEC
+    SELECT --> BUILD
+    BUILD --> EXEC
 
-    %% External API Trip (drawn carefully to avoid subgraph overlap)
-    EXEC -->|parallel requests| ADAPTERS
-    ADAPTERS -->|raw streams| NORMALIZE
+    %% API interaction
+    EXEC -->|parallel calls| ADAPTERS
+    ADAPTERS -->|raw responses| NORMALIZE
 
-    %% Policy connections
+    %% Policies
     TIMEOUT -.-> EXEC
     FAILURE -.-> EXEC
 
-    %% Pipeline Internal Flow
+    %% Internal pipeline
     NORMALIZE --> CACHE
     CACHE --> MERGE
     NORMALIZE --> MERGE
-    
-    %% Output
-    MERGE -->|progressive updates| OUTPUT
 
-    %% Line styling to ensure visibility on both Dark/Light modes
+    %% Output
+    MERGE --> OUTPUT
+
+    %% Styles
     linkStyle default stroke:#10b981,stroke-width:3px;
 
-    %% Subgraph styling (Transparent background with strict border = perfect Dark Mode compatibility)
-    style Orchestrator fill:transparent,stroke:#22c55e,stroke-width:4px,rx:12,ry:12
+    style Orchestrator fill:transparent,stroke:#22c55e,stroke-width:4px
 
-    %% Node styling (Solid backgrounds with white text for maximum contrast anywhere)
-    classDef internal fill:#16a34a,stroke:#14532d,stroke-width:3px,color:#ffffff;
-    classDef policy fill:#475569,stroke:#0f172a,stroke-width:2px,stroke-dasharray:5 5,color:#ffffff;
-    classDef external fill:#0284c7,stroke:#082f49,stroke-width:2px,stroke-dasharray:5 5,color:#ffffff;
+    classDef internal fill:#16a34a,stroke:#14532d,stroke-width:3px,color:#fff;
+    classDef policy fill:#475569,stroke:#0f172a,stroke-width:2px,stroke-dasharray:5 5,color:#fff;
+    classDef external fill:#0284c7,stroke:#082f49,stroke-width:2px,stroke-dasharray:5 5,color:#fff;
 
-    class SELECT,EXEC,NORMALIZE,CACHE,MERGE internal;
+    class SELECT,BUILD,EXEC,NORMALIZE,CACHE,MERGE internal;
     class TIMEOUT,FAILURE policy;
     class INPUT,CONFIG,ADAPTERS,OUTPUT external;
 ```

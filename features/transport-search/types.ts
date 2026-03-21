@@ -78,3 +78,18 @@ export type TransportSearchResult = {
 	arrivalTime: string
 	priceLabel: string
 }
+
+export type ProviderRawResponse =
+	| TrainRoutesApiResponse
+	| BusRoutesApiResponse
+	| FerryRoutesApiResponse
+
+export type AdapterFn = (
+	params: TransportSearchParams,
+	signal?: AbortSignal
+) => Promise<TransportSearchResult>
+
+export type ProviderSearchTask = {
+	provider: TransportProvider
+	request: Promise<TransportSearchResult[]>
+}

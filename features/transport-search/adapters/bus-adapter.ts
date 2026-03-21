@@ -1,23 +1,16 @@
 import { apiClient } from '@/lib/api/client'
+import { buildBusQueryParams, mapTransportSearchToBusParams } from '../builders/bus-request-builder'
 import { TRANSPORT_API_ENDPOINTS } from '../constants'
-import type { BusSearchParams, TrainRoutesApiResponse } from '../types'
+import type { BusRoutesApiResponse, TransportSearchParams } from '../types'
 
-const buildBusSearchParams = (filters: BusSearchParams): URLSearchParams => {
-	const params = new URLSearchParams()
-
-	if (filters.destinationId) params.set('destinationId', filters.destinationId)
-	if (filters.originId) params.set('originId', filters.originId)
-	if (filters.pax) params.set('pax', filters.pax)
-	if (filters.travelDate) params.set('travelDate', filters.travelDate)
-	return params
-}
-
-export const searchTrainRoutes = async (
-	params: BusSearchParams,
+export const searchBusRoutes = async (
+	params: TransportSearchParams,
 	signal?: AbortSignal
-): Promise<TrainRoutesApiResponse> => {
-	const urlParams = buildBusSearchParams(params)
-	const url = `${TRANSPORT_API_ENDPOINTS.bus}?${urlParams.toString()}`
+): Promise<BusRoutesApiResponse> => {
+	const providerParams = mapTransportSearchToBusParams(params)
+	const query = buildBusQueryParams(providerParams)
 
-	return apiClient<TrainRoutesApiResponse>(url, { signal })
+	const url = `${TRANSPORT_API_ENDPOINTS.bus}?${query.toString()}`
+
+	return apiClient<BusRoutesApiResponse>(url, { signal })
 }

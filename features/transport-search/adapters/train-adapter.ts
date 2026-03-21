@@ -1,23 +1,18 @@
 import { apiClient } from '@/lib/api/client'
+import {
+	buildTrainQueryParams,
+	mapTransportSearchToTrainParams,
+} from '../builders/train-request-builder'
 import { TRANSPORT_API_ENDPOINTS } from '../constants'
-import type { TrainRoutesApiResponse, TrainSearchParams } from '../types'
-
-const buildTrainSearchParams = (filters: TrainSearchParams): URLSearchParams => {
-	const params = new URLSearchParams()
-
-	if (filters.date) params.set('date', filters.date)
-	if (filters.from) params.set('from', filters.from)
-	if (filters.to) params.set('to', filters.to)
-	if (filters.passengers) params.set('passengers', filters.passengers.toString())
-	return params
-}
+import type { TrainRoutesApiResponse, TransportSearchParams } from '../types'
 
 export const searchTrainRoutes = async (
-	params: TrainSearchParams,
+	params: TransportSearchParams,
 	signal?: AbortSignal
 ): Promise<TrainRoutesApiResponse> => {
-	const urlParams = buildTrainSearchParams(params)
-	const url = `${TRANSPORT_API_ENDPOINTS.train}?${urlParams.toString()}`
+	const providerParams = mapTransportSearchToTrainParams(params)
+	const query = buildTrainQueryParams(providerParams)
+	const url = `${TRANSPORT_API_ENDPOINTS.train}?${query.toString()}`
 
 	return apiClient<TrainRoutesApiResponse>(url, { signal })
 }

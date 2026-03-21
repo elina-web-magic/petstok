@@ -1,23 +1,18 @@
 import { apiClient } from '@/lib/api/client'
+import {
+	buildFerryQueryParams,
+	mapTransportSearchToFerryParams,
+} from '../builders/ferry-request-builder'
 import { TRANSPORT_API_ENDPOINTS } from '../constants'
-import type { FerrySearchParams, TrainRoutesApiResponse } from '../types'
-
-const buildFerrySearchParams = (filters: FerrySearchParams): URLSearchParams => {
-	const params = new URLSearchParams()
-
-	if (filters.departureDate) params.set('departureDate', filters.departureDate)
-	if (filters.passengerCount) params.set('passengerCount', filters.passengerCount)
-	if (filters.portFrom) params.set('portFrom', filters.portFrom)
-	if (filters.portTo) params.set('portTo', filters.portTo)
-	return params
-}
+import type { FerryRoutesApiResponse, TransportSearchParams } from '../types'
 
 export const searchFerryRoutes = async (
-	params: FerrySearchParams,
+	params: TransportSearchParams,
 	signal?: AbortSignal
-): Promise<TrainRoutesApiResponse> => {
-	const urlParams = buildFerrySearchParams(params)
-	const url = `${TRANSPORT_API_ENDPOINTS.ferry}?${urlParams.toString()}`
+): Promise<FerryRoutesApiResponse> => {
+	const providerParams = mapTransportSearchToFerryParams(params)
+	const query = buildFerryQueryParams(providerParams)
+	const url = `${TRANSPORT_API_ENDPOINTS.ferry}?${query.toString()}`
 
-	return apiClient<TrainRoutesApiResponse>(url, { signal })
+	return apiClient<FerryRoutesApiResponse>(url, { signal })
 }
