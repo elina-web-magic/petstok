@@ -1,6 +1,6 @@
 'use client'
 
-import { Home, Plus, User, Wrench } from 'lucide-react'
+import { Home, LineSquiggle, Plus, User, Wrench } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { type ChangeEvent, useState } from 'react'
@@ -46,6 +46,11 @@ const items = [
 		title: 'Profile',
 		url: `/profile/${USER_ID}`,
 		icon: User,
+	},
+	{
+		title: 'Transport Search',
+		url: '/transport-search',
+		icon: LineSquiggle,
 	},
 ]
 
