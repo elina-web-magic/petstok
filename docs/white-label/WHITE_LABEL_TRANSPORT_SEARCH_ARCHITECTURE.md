@@ -1,84 +1,91 @@
 # White-Label Transport Search Architecture
 
-This page defines a practice architecture for a white-label transport search experience embedded into a partner product.  
-The goal is to model how the frontend coordinates search UI, orchestration, provider integrations, and normalized results.
+This page defines a high-level architecture for a white-label transport search experience.  
+It focuses on how the frontend coordinates UI, orchestration, providers, and normalized results without exposing implementation details.
 
 ## Search UI
 
-The Search UI is the entry point where the traveler enters origin, destination, date, and passengers.  
-It should remain presentation-focused and delegate orchestration to hooks and services (like Harry holding the wand, but not controlling the magic directly).  
-**Why:** The UI shouldn't know about the API → less coupling.
+The Search UI collects user input (from, to, date, passengers) and triggers search execution.  
+It delegates all logic to hooks and services (like Harry holding the wand, but not controlling the magic directly).  
+**Why:** keeps UI simple and decoupled from business logic.
 
-## Search Hook (includes Request Control)
+## Search Hook
 
-The Search Hook manages async state (loading, error, data) and internally handles request control such as debounce, cancellation, and "latest request wins" logic (like Hermione controlling spells and preventing them from exploding).  
-**Why:** The UI works with a stable state, while all request complexity is isolated.
+The Search Hook manages async state (loading, error, data) and connects UI to the orchestrator.  
+It encapsulates request lifecycle concerns (like Hermione stabilizing spell execution).  
+**Why:** provides a stable interface between UI and data layer.
 
 ## Search Orchestrator
 
-The Search Orchestrator is the decision boundary of the system.  
-It selects providers from config, performs fan-out requests, merges results, applies sorting and ranking, and returns a consistent UI model (like Dumbledore coordinating all magical processes).  
-**Why:** Centralizes business logic and manages complexity.
+The Search Orchestrator is the central decision layer.  
+It selects providers, executes parallel requests, applies timeout policies, merges results, and returns a consistent model (like Dumbledore coordinating all magic).  
+**Why:** centralizes business logic and controls complexity.
 
 ## Provider Adapters
 
 Provider Adapters isolate each external API behind a unified interface.  
-They handle authentication, headers, rate limits, and map raw responses to a normalized structure (like translators of magical languages).  
-**Why:** Isolates API instability and contract changes.
+They handle request building, authentication, and API communication (like translators between magical worlds).  
+**Why:** protects the system from API variability.
 
 ## Result Normalizer
 
-The Result Normalizer converts provider-specific data into a shared domain model.  
-It ensures all providers produce consistent output (like transforming different spells into a single unified form).  
-**Why:** The UI doesn't depend on specific APIs.
+The Result Normalizer converts raw provider responses into a shared domain model.  
+It ensures consistency across all providers (like transforming different spells into one language).  
+**Why:** prevents UI dependency on external contracts.
 
-## Cache Layer (inside Orchestrator boundary)
+## Cache Layer (inside Orchestrator)
 
-The Cache Layer stores normalized and merged results.  
-It is used by the orchestrator to prevent repeated fan-out calls (like a magical memory of results).  
-**Why:** Caching only makes sense after aggregation.
+The Cache Layer stores normalized provider results and merged outputs.  
+It is used for fallback and performance optimization (like a magical memory of past searches).  
+**Why:** improves resilience and reduces repeated requests.
 
-## Maps Enrichment (async layer)
+## Timeout Policy (inside Orchestrator)
 
-Maps Enrichment enhances results with route visualization and location context.  
-It runs independently and updates the UI progressively (like the Marauder's Map appearing later).  
-**Why:** Doesn't block the core results.
+Timeout policy limits how long each provider request can run.  
+Slow providers are safely ignored while others continue (like abandoning a lost owl).  
+**Why:** prevents one provider from blocking the entire search.
 
-## Calendar Enrichment (async layer)
+## Maps Enrichment (optional)
 
-Calendar Enrichment provides nearby date insights and pricing variations.  
-It runs independently from the core search flow (like predicting the future).  
-**Why:** Secondary data → shouldn't block the UX.
+Adds route visualization and geospatial context asynchronously.  
+It updates UI after core results are available (like revealing the Marauder’s Map later).  
+**Why:** non-critical enhancement layer.
 
-## White-Label Config (control plane)
+## Calendar Enrichment (optional)
 
-White-Label Config defines enabled providers, integrations, and partner-specific behavior.  
-It can be runtime (API/CDN) or build-time (env config) (like the rules of different magical schools).  
-**Why:** Allows scaling the product for different clients.
+Provides nearby date insights and pricing variations.  
+Runs independently from the main search flow (like glimpses into the future).  
+**Why:** secondary data should not block results.
+
+## White-Label Config
+
+Defines enabled providers and partner-specific behavior.  
+Can be runtime or build-time configuration (like rules of different magical schools).  
+**Why:** supports multiple clients with one system.
 
 ## Failure Handling (inside Orchestrator)
 
-Failure handling is implemented as a strategy inside the orchestrator.  
-If one provider fails, the system returns partial results instead of failing completely (like protection against a broken spell).  
-**Why:** Resilience is more important than a perfect response.
+Handles provider failures without breaking the entire flow.  
+Returns partial results when needed (like shielding against broken spells).  
+**Why:** resilience over perfection.
 
 ## Progressive Results (Ghost Layer)
 
-Progressive results allow partial data to appear as providers respond.  
-Faster providers render first, slower ones append later (like magic revealing itself gradually).  
-**Why:** Improves perceived performance.
+Allows results to appear as soon as providers respond.  
+Faster providers render first (like magic revealing itself step by step).  
+**Why:** improves perceived performance.
 
-## Monitoring & Analytics (Ghost Layer)
+## Monitoring (Ghost Layer)
 
-Monitoring tracks latency, failures, and provider reliability.  
-It is not part of the core flow but ensures system observability (like controlling the state of the magical world).  
-**Why:** Production stability.
+Tracks latency, failures, and provider reliability.  
+Not part of core flow (like observing the magical system).  
+**Why:** ensures production stability.
 
 ## Recommended Boundary
 
-The orchestrator is the central decision layer.  
-It coordinates providers, applies business logic, and returns a stable result model (like the center of magic control).  
-**Why:** A clear signal of senior-level design.
+The orchestrator is the system’s control center.  
+It coordinates providers, applies policies, and returns a stable model (like the core of magical control).  
+**Why:** clear separation of concerns and strong system design signal.
 
 ```mermaid
 flowchart LR
@@ -93,11 +100,13 @@ flowchart LR
     TRAIN[Train Adapter]
     FERRY[Ferry Adapter]
 
-    MAPS["Maps Enrichment (optional)"]
-    CALENDAR["Calendar Enrichment (optional)"]
+    TIMEOUT[Timeout Policy]
 
-    PROGRESSIVE["Progressive Results (optional)"]
-    MONITORING["Monitoring (optional)"]
+    MAPS["Maps Enrichment"]
+    CALENDAR["Calendar Enrichment"]
+
+    PROGRESSIVE["Progressive Results"]
+    MONITORING["Monitoring"]
 
     UI --> HOOK
     HOOK --> ORCH
@@ -113,19 +122,21 @@ flowchart LR
     FERRY --> NORMALIZER
 
     NORMALIZER --> ORCH
-
     ORCH --> HOOK
 
-    %% Async enrichment (non-blocking, optional)
+    CONFIG --> ORCH
+
+    %% Timeout inside orchestration
+    ORCH -.-> TIMEOUT
+
+    %% Optional async layers
     ORCH -.-> MAPS
     ORCH -.-> CALENDAR
 
     MAPS -.-> HOOK
     CALENDAR -.-> HOOK
 
-    CONFIG --> ORCH
-
-    %% Ghost layers (optional)
+    %% Ghost layers
     ORCH -.-> PROGRESSIVE
     ORCH -.-> MONITORING
 
@@ -138,7 +149,7 @@ flowchart LR
 
     class UI,HOOK client;
     class BUS,TRAIN,FERRY,CONFIG server;
-    class ORCH,NORMALIZER action;
+    class ORCH,NORMALIZER,TIMEOUT action;
     class CACHE db;
     class MAPS,CALENDAR,PROGRESSIVE,MONITORING optional;
 ```
