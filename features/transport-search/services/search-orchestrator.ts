@@ -3,12 +3,14 @@ import { ConsoleSink } from '@/lib/logger/sinks'
 import { searchBusRoutes } from '../adapters/bus-adapter'
 import { searchFerryRoutes } from '../adapters/ferry-adapter'
 import { searchTrainRoutes } from '../adapters/train-adapter'
+import { PROVIDER_TIMEOUT_MS } from '../constants'
 import { normalizeBusRoutes } from '../normalizers/bus-normalizer'
 import { normalizeFerryRoutes } from '../normalizers/ferry-normalizer'
 import { normalizeTrainRoutes } from '../normalizers/train-normalizer'
 import type { ProviderSearchTask, TransportSearchParams, TransportSearchResult } from '../types'
 import { getProviderCache, setProviderCache } from './provider-cache'
 import { filterProvidersBySearchContext, getEnabledProvidersFromConfig } from './provider-selection'
+import { withTimeout } from './with-timeout'
 
 const logger = new Logger({
 	scope: 'features:transport-search:services:search-orchestrator',
@@ -31,18 +33,30 @@ export const searchTransportRoutes = async (
 		if (provider === 'bus')
 			return {
 				provider,
-				request: searchBusRoutes(params, signal).then(normalizeBusRoutes),
+				request: withTimeout(
+					searchBusRoutes(params, signal).then(normalizeBusRoutes),
+					PROVIDER_TIMEOUT_MS,
+					'Bus provider request timed out'
+				),
 			}
 
 		if (provider === 'train')
 			return {
 				provider,
-				request: searchTrainRoutes(params, signal).then(normalizeTrainRoutes),
+				request: withTimeout(
+					searchTrainRoutes(params, signal).then(normalizeTrainRoutes),
+					PROVIDER_TIMEOUT_MS,
+					'Train provider request timed out'
+				),
 			}
 
 		return {
 			provider,
-			request: searchFerryRoutes(params, signal).then(normalizeFerryRoutes),
+			request: withTimeout(
+				searchFerryRoutes(params, signal).then(normalizeFerryRoutes),
+				PROVIDER_TIMEOUT_MS,
+				'Ferry provider request timed out'
+			),
 		}
 	})
 	// Merge Strategy:

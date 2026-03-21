@@ -11,3 +11,5 @@ export const ALL_TRANSPORT_PROVIDERS = [
 	'train',
 	'ferry',
 ] as const satisfies readonly TransportProvider[]
+
+export const PROVIDER_TIMEOUT_MS = 4000
