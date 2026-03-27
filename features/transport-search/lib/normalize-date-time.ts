@@ -1,4 +1,5 @@
 import type { NormalizedDateTime } from '../types/normalized-transport'
+import { MINUTES_IN_HOUR, MS_IN_DAY, MS_IN_MINUTE, MS_IN_SECOND } from '../constants'
 
 type NormalizeDateTimeInput = {
 	raw: string
@@ -39,7 +40,7 @@ const getOffsetInfo = (timezone: string, date: Date) => {
 	const hNum = parseInt(hours, 10)
 	const mNum = parseInt(minutes || '0', 10)
 
-	const ms = sign * (hNum * 60 + mNum) * 60 * 1000
+	const ms = sign * (hNum * MINUTES_IN_HOUR + mNum) * MS_IN_MINUTE
 	const formatted = `${sign > 0 ? '+' : '-'}${hours.padStart(2, '0')}:${(minutes || '00').padStart(2, '0')}`
 
 	return { ms, formatted }
@@ -75,7 +76,7 @@ export const normalizeDateTime = ({
 	let date: Date
 	if (/^\d+$/.test(raw)) {
 		const num = Number(raw)
-		date = new Date(num > 10_000_000_000 ? num : num * 1000)
+		date = new Date(num > 10_000_000_000 ? num : num * MS_IN_SECOND)
 	} else if (raw.endsWith('Z') || /[+-]\d{2}(:?\d{2})?$/.test(raw)) {
 		date = new Date(raw)
 	} else {
@@ -96,7 +97,7 @@ export const normalizeDateTime = ({
 		const currentDayIndex = getDayIndex(date, timezone)
 		const baseDayIndex = getDayIndex(new Date(baseDateIso), timezone)
 
-		dayOffset = Math.round((currentDayIndex - baseDayIndex) / (24 * 60 * 60 * 1000))
+		dayOffset = Math.round((currentDayIndex - baseDayIndex) / MS_IN_DAY)
 	}
 	return {
 		iso,

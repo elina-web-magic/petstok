@@ -1,3 +1,4 @@
+import { MS_IN_MINUTE } from '../constants'
 import type { NormalizedTransportSegment } from '../types/normalized-transport'
 import { normalizeDateTime } from './normalize-date-time'
 import { normalizeLocation } from './normalize-location'
@@ -19,8 +20,6 @@ type NormalizeTransportSegmentInput = {
 	departureTimezone?: string
 	arrivalTimezone?: string
 }
-
-const MS_IN_MINUTE = 60 * 1000
 
 export const normalizeTransportSegment = ({
 	provider,
