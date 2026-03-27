@@ -1,4 +1,4 @@
-import type { NormalizedDateTime } from '../types/normalized-transport-segment'
+import type { NormalizedDateTime } from '../types/normalized-transport'
 
 type NormalizeDateTimeInput = {
 	raw: string
