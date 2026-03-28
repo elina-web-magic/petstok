@@ -1,5 +1,35 @@
 # RACE CONDITIONS AND ABORT FLOW
 
+## Goal
+
+```text
+• Ensure that only the latest user action affects the UI and prevent stale async responses.
+```
+
+## Decisions
+
+```text
+
+ • Use AbortController to cancel previous in-flight requests
+ • Keep a request-scoped controller and check signal.aborted after async operations
+ • Handle this logic inside the orchestration layer to isolate async control from UI
+```
+
+## Trade-offs
+
+```text
+
+ • Adds complexity to async flow management
+ • Requires careful handling of abort signals and edge cases
+```
+
+## Why
+
+```text
+
+• This guarantees UI consistency, prevents stale data from overriding newer results, and improves perceived performance
+```
+
 This diagram shows how the system prevents stale responses from overriding the latest user action.
 
 ## How to read this diagram

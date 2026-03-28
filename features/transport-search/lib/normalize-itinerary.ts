@@ -1,5 +1,5 @@
-import type { NormalizedItinerary, NormalizedTransportSegment } from '../types/normalized-transport'
 import { MS_IN_MINUTE } from '../constants'
+import type { NormalizedItinerary, NormalizedTransportSegment } from '../types/normalized-transport'
 
 type NormalizeItineraryInput = {
 	itineraryId: string

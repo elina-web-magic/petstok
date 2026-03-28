@@ -1,8 +1,32 @@
 # Map API & System Design Patterns
 
-This document outlines the high-level architecture, orchestration, and frontend integration patterns for a multi-provider transport search system with map routing and global timezone capabilities.
+## Goal
 
----
+```text
+ • Render consistent and correct route geometry for multiple providers with reliable async behavior and good performance.
+
+```
+
+## Decisions
+
+```text
+ • Introduce a normalization layer to unify provider data (time, locations, segments)
+ •  Use a geometry adapter to isolate map providers and standardize output
+ • Add a client-side orchestrator with caching and AbortController to handle async flow and prevent race conditions
+```
+
+## Trade-offs
+
+```text
+ • Additional layers increase complexity but improve scalability and separation of concerns
+ • Client-side caching improves performance but introduces cache management complexity
+```
+
+## Why
+
+```text
+ • This ensures consistent data flow, prevents stale UI updates, and allows easy integration of new providers in a scalable white-label system.
+```
 
 ## 🧩 STEP 1: High-Level Architecture
 

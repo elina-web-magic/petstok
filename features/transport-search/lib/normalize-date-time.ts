@@ -1,5 +1,5 @@
+import { MS_IN_DAY, MS_IN_HOUR, MS_IN_MINUTE, MS_IN_SECOND } from '../constants'
 import type { NormalizedDateTime } from '../types/normalized-transport'
-import { MINUTES_IN_HOUR, MS_IN_DAY, MS_IN_MINUTE, MS_IN_SECOND } from '../constants'
 
 type NormalizeDateTimeInput = {
 	raw: string
@@ -40,7 +40,7 @@ const getOffsetInfo = (timezone: string, date: Date) => {
 	const hNum = parseInt(hours, 10)
 	const mNum = parseInt(minutes || '0', 10)
 
-	const ms = sign * (hNum * MINUTES_IN_HOUR + mNum) * MS_IN_MINUTE
+	const ms = sign * (hNum * MS_IN_HOUR + mNum * MS_IN_MINUTE)
 	const formatted = `${sign > 0 ? '+' : '-'}${hours.padStart(2, '0')}:${(minutes || '00').padStart(2, '0')}`
 
 	return { ms, formatted }

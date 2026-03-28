@@ -2,9 +2,33 @@
 
 ## Goal
 
-Combine normalized itineraries from multiple providers into a single list for UI.
+```text
+• Support multiple clients and providers with a scalable, configurable architecture while maintaining a consistent user experience.
+```
 
----
+## Decisions
+
+```text
+• Use a config-driven architecture to customize behavior per client without changing core logic
+• Introduce provider abstraction layer to isolate transport and map providers
+• Build reusable UI components with client-specific configuration (branding, features)
+• Keep orchestration logic centralized to manage providers and async flow
+```
+
+⸻
+
+## Trade-offs
+
+```text
+• Increased complexity due to configuration and abstraction layers
+• Requires strong contract definitions between layers
+```
+
+## Why
+
+```text
+• This enables independent scaling of clients and providers, reduces duplication, and allows fast onboarding of new integrations in a white-label system.
+```
 
 ## Responsibilities
 
