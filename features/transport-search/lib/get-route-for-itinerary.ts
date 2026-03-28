@@ -21,16 +21,17 @@ type GetRouteForItineraryInput = {
 }
 
 type GetRouteForItineraryDeps = {
-	fetchRoute: (points: RoutePoint[]) => Promise<unknown>
+	fetchRoute: (points: RoutePoint[], signal?: AbortSignal) => Promise<unknown>
 	provider: 'google' | 'mapbox'
 }
+
+let currentAbortController: AbortController | null = null
 
 export const getRouteForItinerary = async (
 	{ itinerary }: GetRouteForItineraryInput,
 	{ fetchRoute, provider }: GetRouteForItineraryDeps
 ): Promise<NormalizedGeometry> => {
 	let geometry: NormalizedGeometry
-
 	const itineraryId = itinerary.itineraryId
 
 	const cached = getCachedRoute(itineraryId)
@@ -44,17 +45,29 @@ export const getRouteForItinerary = async (
 		}
 	}
 
-	const response = await fetchRoute(points)
+	if (currentAbortController) {
+		currentAbortController.abort()
+	}
+
+	const controller = new AbortController()
+	currentAbortController = controller
+
+	const request = await fetchRoute(points, controller.signal)
 
 	if (provider === 'google') {
-		geometry = adaptGeometry({ provider, geometry: response as GoogleGeometryInput })
-		setCachedRoute(itineraryId, geometry)
-
-		return geometry
+		const googleRequest = request as GoogleGeometryInput
+		geometry = adaptGeometry({ provider, geometry: googleRequest })
 	} else {
-		geometry = adaptGeometry({ provider, geometry: response as MapboxGeometryInput })
-		setCachedRoute(itineraryId, geometry)
-
-		return geometry
+		geometry = adaptGeometry({ provider, geometry: request as MapboxGeometryInput })
 	}
+
+	if (controller.signal.aborted) {
+		return {
+			points: [],
+		}
+	}
+
+	setCachedRoute(itineraryId, geometry)
+
+	return geometry
 }
