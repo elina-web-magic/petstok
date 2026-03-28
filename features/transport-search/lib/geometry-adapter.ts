@@ -7,11 +7,11 @@ type NormalizedGeometry = {
 	points: RoutePoint[]
 }
 
-type GoogleGeometryInput = {
+export type GoogleGeometryInput = {
 	encodedPolyline: string
 }
 
-type MapboxGeometryInput = {
+export type MapboxGeometryInput = {
 	coordinates: [number, number][]
 }
 
