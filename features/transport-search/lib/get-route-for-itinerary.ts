@@ -1,3 +1,4 @@
+import type { MapProviders } from '../types'
 import type { NormalizedItinerary } from '../types/normalized-transport'
 import { buildRoutePayload } from './build-route-payload'
 import {
@@ -22,7 +23,7 @@ type GetRouteForItineraryInput = {
 
 type GetRouteForItineraryDeps = {
 	fetchRoute: (points: RoutePoint[], signal?: AbortSignal) => Promise<unknown>
-	provider: 'google' | 'mapbox'
+	provider: MapProviders
 }
 
 let currentAbortController: AbortController | null = null

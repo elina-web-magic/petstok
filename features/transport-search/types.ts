@@ -83,3 +83,15 @@ export type ProviderSearchTask = {
 	provider: TransportProvider
 	request: Promise<TransportSearchResult[]>
 }
+
+export type RoutePoint = {
+	lat: number
+	lng: number
+}
+
+export type MapProviders = 'google' | 'mapbox'
+
+export type RouteRequestProps = {
+	points: RoutePoint[]
+	signal?: AbortSignal
+}
