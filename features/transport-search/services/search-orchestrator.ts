@@ -90,9 +90,13 @@ export const searchTransportRoutes = async (
 		}
 
 		if (result.status === 'fulfilled') {
-			setProviderCache(provider, result.value)
+			const data = result.value
+
+			setProviderCache(provider, data.results, data.itineraries)
+
 			log.info('Provider results cached', { provider })
-			fulfilledResults.push(result.value)
+
+			fulfilledResults.push(data.results)
 
 			return
 		}
@@ -108,8 +112,10 @@ export const searchTransportRoutes = async (
 		}
 
 		const cachedEntry = getProviderCache(provider)
+
 		if (cachedEntry) {
 			log.info('Provider fallback to cache', { provider })
+
 			fulfilledResults.push(cachedEntry.results)
 			cachedProviders.push(provider)
 		} else {

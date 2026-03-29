@@ -1,7 +1,9 @@
 import type { TransportProvider, TransportSearchResult } from '../types'
+import type { NormalizedItinerary } from '../types/normalized-transport'
 
 type ProviderCacheEntry = {
 	results: TransportSearchResult[]
+	itineraries: NormalizedItinerary[]
 	updatedAt: number
 }
 
@@ -13,10 +15,12 @@ export const getProviderCache = (provider: TransportProvider): ProviderCacheEntr
 
 export const setProviderCache = (
 	provider: TransportProvider,
-	results: TransportSearchResult[]
+	results: TransportSearchResult[],
+	itineraries: NormalizedItinerary[]
 ): void => {
 	providerCache.set(provider, {
 		results,
+		itineraries,
 		updatedAt: Date.now(),
 	})
 }
