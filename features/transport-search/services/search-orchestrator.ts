@@ -7,7 +7,12 @@ import { PROVIDER_TIMEOUT_MS } from '../constants'
 import { normalizeBusRoutes } from '../normalizers/bus-normalizer'
 import { normalizeFerryRoutes } from '../normalizers/ferry-normalizer'
 import { normalizeTrainRoutes } from '../normalizers/train-normalizer'
-import type { ProviderSearchTask, TransportSearchParams, TransportSearchResult } from '../types'
+import type {
+	ProviderSearchTask,
+	TransportSearchParams,
+	TransportSearchResponse,
+	TransportSearchResult,
+} from '../types'
 import { getProviderCache, setProviderCache } from './provider-cache'
 import { filterProvidersBySearchContext, getEnabledProvidersFromConfig } from './provider-selection'
 import { withTimeout } from './with-timeout'
@@ -17,14 +22,6 @@ const logger = new Logger({
 	minLevel: 'debug',
 	sinks: [new ConsoleSink()],
 })
-
-type TransportSearchResponse = {
-	results: TransportSearchResult[]
-	partial: boolean
-	failedProviders: string[]
-	timedOutProviders: string[]
-	cachedProviders: string[]
-}
 
 export const searchTransportRoutes = async (
 	params: TransportSearchParams,

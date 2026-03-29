@@ -81,6 +81,14 @@ export type TransportSearchResult = {
 	priceLabel: string
 }
 
+export type TransportSearchResponse = {
+	results: TransportSearchResult[]
+	partial: boolean
+	failedProviders: string[]
+	timedOutProviders: string[]
+	cachedProviders: string[]
+}
+
 export type ProviderSearchTask = {
 	provider: TransportProvider
 	request: Promise<TransportSearchResult[]>

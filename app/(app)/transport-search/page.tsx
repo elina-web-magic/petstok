@@ -59,7 +59,7 @@ const TransportSearchPage = () => {
 
 				<div className="TransportSearchPage__Workbench flex overflow-hidden">
 					<TransportSearchWorkbench
-						results={transportSearch.data ?? []}
+						results={transportSearch.data?.results ?? []}
 						isLoading={transportSearch.isLoading}
 						isError={transportSearch.isError}
 					/>
