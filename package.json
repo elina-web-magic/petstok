@@ -11,6 +11,7 @@
 		"biome:check": "scripty",
 		"biome:precommit": "scripty",
 		"prisma:migrate": "prisma migrate dev",
+		"type-check": "tsc --noEmit",
 		"prisma:generate": "prisma generate",
 		"prisma:studio": "prisma studio",
 		"prisma:seed": "prisma db seed",
@@ -18,6 +19,7 @@
 		"prisma:reset": "prisma migrate reset",
 		"postinstall": "prisma generate",
 		"knip": "knip",
+		"format:env": "tsx scripts/format-env.ts",
 		"prepare": "husky"
 	},
 	"dependencies": {

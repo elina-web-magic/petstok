@@ -1,1 +1,1 @@
-pnpm lint && pnpm biome:check && pnpm knip
+pnpm lint && pnpm type-check && pnpm biome:check && pnpm knip

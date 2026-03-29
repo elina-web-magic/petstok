@@ -1,9 +1,5 @@
+import type { RoutePoint } from '../types'
 import type { NormalizedItinerary } from '../types/normalized-transport'
-
-type RoutePoint = {
-	lat: number
-	lng: number
-}
 
 type BuildRoutePayloadResult = {
 	points: RoutePoint[]

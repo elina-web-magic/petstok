@@ -25,20 +25,7 @@ export const POST = async (req: NextRequest) => {
 		return NextResponse.json({ itineraries: [], route: null })
 	}
 
-	const route = await getRouteForItinerary(
-		{ itinerary },
-		{
-			fetchRoute: async (points, signal) => {
-				const res = await fetch('https://example.com/route', {
-					method: 'POST',
-					body: JSON.stringify({ points }),
-					signal,
-				})
-				return res.json()
-			},
-			provider: body.provider,
-		}
-	)
+	const route = await getRouteForItinerary({ itinerary }, { provider: body.provider })
 
 	return NextResponse.json({
 		itineraries: merged.itineraries,
