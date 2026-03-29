@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { cva } from "class-variance-authority"
 import { XIcon } from "lucide-react"
 import { Dialog as DialogPrimitive } from "radix-ui"
 
@@ -47,13 +48,44 @@ function DialogOverlay({
   )
 }
 
+import type { globalSize } from "@/app/global.types"
+
+const closeButtonVariants = cva(
+  "absolute cursor-pointer right-4 top-4 z-50 flex items-center justify-center rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
+  {
+    variants: {
+      variant: {
+        default: "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive: "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20",
+      },
+      size: {
+        default: "[&_svg]:size-4",
+        xs: "[&_svg]:size-3",
+        sm: "[&_svg]:size-3.5",
+        lg: "[&_svg]:size-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
 function DialogContent({
   className,
   children,
   showCloseButton = true,
+  closeBtnSize = "default",
+  clsBtnVariant = "default",
+  closeButtonClassName,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
+  closeBtnSize?: globalSize
+  clsBtnVariant?: "default" | "secondary" | "destructive"
+  closeButtonClassName?: string
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
@@ -69,10 +101,12 @@ function DialogContent({
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close
-            data-slot="dialog-close"
-            className="absolute cursor-pointer top-10 left-10 z-50 rounded-xs text-white opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-white [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-10"
+            className={cn(
+              closeButtonVariants({ variant: clsBtnVariant, size: closeBtnSize }),
+              closeButtonClassName
+            )}
           >
-            <XIcon />
+            <XIcon className="shrink-0" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}
