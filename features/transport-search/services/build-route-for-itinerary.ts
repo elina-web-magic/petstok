@@ -1,6 +1,7 @@
 import { Logger } from '@/lib/logger/logger'
 import { ConsoleSink } from '@/lib/logger/sinks'
-import type { TransportProvider, TransportSearchResult } from '../types'
+import { getRouteForItinerary } from '../lib/get-route-for-itinerary'
+import type { TransportProvider } from '../types'
 import type { NormalizedItinerary } from '../types/normalized-transport'
 import { getProviderCache } from './provider-cache'
 
@@ -29,32 +30,32 @@ export const buildRouteForItinerary = async (
 	const providers: TransportProvider[] = ['bus', 'train', 'ferry']
 	const log = logger.child({ itineraryId })
 
-	let foundResult: TransportSearchResult | undefined
+	let foundItinerary: NormalizedItinerary | undefined
 
 	for (const provider of providers) {
 		const cachedEntry = getProviderCache(provider)
 
 		if (cachedEntry) {
-			const match = (cachedEntry.results as TransportSearchResult[]).find(
-				(item) => item.id === itineraryId
-			)
+			const match = cachedEntry.itineraries.find((item) => item.itineraryId === itineraryId)
 
 			if (match) {
-				foundResult = match
+				foundItinerary = match
 				log.info('Itinerary found in cache', { provider })
 				break
 			}
 		}
 	}
 
-	if (!foundResult) {
+	if (!foundItinerary) {
 		log.error('Itinerary not found in any provider cache')
 		throw new Error('Itinerary not found')
 	}
 
+	const geometry = await getRouteForItinerary({ itinerary: foundItinerary }, { provider: 'google' })
+
 	return {
 		itineraryId,
-		segments: [],
-		geometry: { points: [] },
+		segments: foundItinerary.segments,
+		geometry,
 	}
 }
