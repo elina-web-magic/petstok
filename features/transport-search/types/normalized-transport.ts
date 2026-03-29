@@ -27,3 +27,5 @@ export type NormalizedItinerary = {
 	segments: NormalizedTransportSegment[]
 	totalDurationMinutes: number
 }
+
+export type SearchRequestId = string
