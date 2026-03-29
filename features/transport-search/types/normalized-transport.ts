@@ -29,7 +29,3 @@ export type NormalizedItinerary = {
 }
 
 export type SearchRequestId = string
-
-export type SearchRequestState = {
-	latestRequestId: SearchRequestId | null
-}

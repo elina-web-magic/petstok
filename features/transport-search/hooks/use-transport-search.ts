@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
-import { searchTransportRoutes } from '../services/search-orchestrator'
+import { createTransportSearchController } from '../lib/create-transport-search-controller'
 import type { TransportSearchParams } from '../types'
 
 export const useTransportSearch = (params: TransportSearchParams) => {
+	const controller = createTransportSearchController()
 	return useQuery({
 		queryKey: ['transport-search', params],
-		queryFn: ({ signal }) => searchTransportRoutes(params, signal),
+		queryFn: () => controller.executeSearch(params),
 		enabled: Boolean(params.from && params.to && params.date && params.passengers),
 	})
 }
