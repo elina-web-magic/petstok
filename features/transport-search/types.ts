@@ -81,6 +81,11 @@ export type TransportSearchResult = {
 	priceLabel: string
 }
 
+export type ProviderNormalizedSearchData = {
+	results: TransportSearchResult[]
+	itineraries: NormalizedItinerary[]
+}
+
 export type TransportSearchResponse = {
 	results: TransportSearchResult[]
 	partial: boolean
@@ -91,7 +96,7 @@ export type TransportSearchResponse = {
 
 export type ProviderSearchTask = {
 	provider: TransportProvider
-	request: Promise<TransportSearchResult[]>
+	request: Promise<ProviderNormalizedSearchData>
 }
 
 export type RoutePoint = {

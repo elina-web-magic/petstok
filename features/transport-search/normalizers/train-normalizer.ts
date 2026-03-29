@@ -1,7 +1,13 @@
-import type { TrainRoutesApiResponse, TransportSearchResult } from '../types'
+import type {
+	ProviderNormalizedSearchData,
+	TrainRoutesApiResponse,
+	TransportSearchResult,
+} from '../types'
 
-export const normalizeTrainRoutes = (response: TrainRoutesApiResponse): TransportSearchResult[] => {
-	return response.routes.map((route) => {
+export const normalizeTrainRoutes = (
+	response: TrainRoutesApiResponse
+): ProviderNormalizedSearchData => {
+	const results: TransportSearchResult[] = response.routes.map((route) => {
 		return {
 			id: route.journeyId,
 			provider: 'train',
@@ -13,4 +19,9 @@ export const normalizeTrainRoutes = (response: TrainRoutesApiResponse): Transpor
 			priceLabel: `€ ${route.price}`,
 		}
 	})
+
+	return {
+		results,
+		itineraries: [],
+	}
 }

@@ -1,7 +1,13 @@
-import type { FerryRoutesApiResponse, TransportSearchResult } from '../types'
+import type {
+	FerryRoutesApiResponse,
+	ProviderNormalizedSearchData,
+	TransportSearchResult,
+} from '../types'
 
-export const normalizeFerryRoutes = (response: FerryRoutesApiResponse): TransportSearchResult[] => {
-	return response.results.map((result) => {
+export const normalizeFerryRoutes = (
+	response: FerryRoutesApiResponse
+): ProviderNormalizedSearchData => {
+	const results: TransportSearchResult[] = response.results.map((result) => {
 		return {
 			id: result.sailingId,
 			provider: 'ferry',
@@ -10,7 +16,12 @@ export const normalizeFerryRoutes = (response: FerryRoutesApiResponse): Transpor
 			to: result.destination,
 			arrivalTime: result.start,
 			departureTime: result.end,
-			priceLabel: result.fareText, // TODO: parse price and currency from fareText if needed
+			priceLabel: result.fareText,
 		}
 	})
+
+	return {
+		results,
+		itineraries: [],
+	}
 }
