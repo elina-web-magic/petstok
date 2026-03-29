@@ -18,14 +18,26 @@ const logger = new Logger({
 	sinks: [new ConsoleSink()],
 })
 
+type TransportSearchResponse = {
+	results: TransportSearchResult[]
+	partial: boolean
+	failedProviders: string[]
+	timedOutProviders: string[]
+	cachedProviders: string[]
+}
+
 export const searchTransportRoutes = async (
 	params: TransportSearchParams,
 	signal?: AbortSignal
-): Promise<TransportSearchResult[]> => {
+): Promise<TransportSearchResponse> => {
 	const enabledProviders = getEnabledProvidersFromConfig()
 	const selectedProviders = filterProvidersBySearchContext(enabledProviders, params)
 	const requestId = crypto.randomUUID()
 	const log = logger.child({ requestId })
+
+	const failedProviders: string[] = []
+	const timedOutProviders: string[] = []
+	const cachedProviders: string[] = []
 
 	const tasks: ProviderSearchTask[] = selectedProviders.map((provider) => {
 		log.info('Sent provider request', { provider })
@@ -88,16 +100,28 @@ export const searchTransportRoutes = async (
 			return
 		}
 
+		if (result.status === 'rejected') {
+			const message = result.reason instanceof Error ? result.reason.message : String(result.reason)
+
+			if (message.toLowerCase().includes('timed out')) {
+				timedOutProviders.push(provider)
+			} else {
+				failedProviders.push(provider)
+			}
+		}
+
 		const cachedEntry = getProviderCache(provider)
 		if (cachedEntry) {
-			log.info('Cached provider results are used', { provider })
+			log.info('Provider fallback to cache', { provider })
 			fulfilledResults.push(cachedEntry.results)
+			cachedProviders.push(provider)
 		} else {
 			log.error('Provider request failed without cache fallback', { provider }, result.reason)
 		}
 	})
+
 	const mergedResults = fulfilledResults.flat()
-	const sorted = mergedResults.sort(
+	const sorted = [...mergedResults].sort(
 		(a: TransportSearchResult, b: TransportSearchResult): number => {
 			const aTime = new Date(a.departureTime).getTime()
 			const bTime = new Date(b.departureTime).getTime()
@@ -105,5 +129,12 @@ export const searchTransportRoutes = async (
 			return aTime - bTime
 		}
 	)
-	return sorted
+
+	return {
+		results: sorted,
+		partial: failedProviders.length > 0 || timedOutProviders.length > 0,
+		failedProviders,
+		timedOutProviders,
+		cachedProviders,
+	}
 }

@@ -1,13 +1,5 @@
+import type { ProviderMergeItem } from '../types'
 import type { NormalizedItinerary } from '../types/normalized-transport'
-
-type ProviderMergeStatus = 'success' | 'failed' | 'timeout'
-
-type ProviderMergeItem = {
-	provider: string
-	status: ProviderMergeStatus
-	itineraries: NormalizedItinerary[]
-	errorMessage?: string
-}
 
 type MergeProviderItinerariesInput = {
 	providers: ProviderMergeItem[]

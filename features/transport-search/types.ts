@@ -1,3 +1,5 @@
+import type { NormalizedItinerary } from './types/normalized-transport'
+
 export type TransportSearchParams = {
 	from: string
 	to: string
@@ -94,4 +96,13 @@ export type MapProviders = 'google' | 'mapbox'
 export type RouteRequestProps = {
 	points: RoutePoint[]
 	signal?: AbortSignal
+}
+
+type ProviderMergeStatus = 'success' | 'failed' | 'timeout'
+
+export type ProviderMergeItem = {
+	provider: string
+	status: ProviderMergeStatus
+	itineraries: NormalizedItinerary[]
+	errorMessage?: string
 }
