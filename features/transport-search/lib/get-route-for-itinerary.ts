@@ -1,3 +1,4 @@
+import { fetchRoute } from '../api/fetch-route'
 import type { MapProviders } from '../types'
 import type { NormalizedItinerary } from '../types/normalized-transport'
 import { buildRoutePayload } from './build-route-payload'
@@ -22,7 +23,6 @@ type GetRouteForItineraryInput = {
 }
 
 type GetRouteForItineraryDeps = {
-	fetchRoute: (points: RoutePoint[], signal?: AbortSignal) => Promise<unknown>
 	provider: MapProviders
 }
 
@@ -30,7 +30,7 @@ let currentAbortController: AbortController | null = null
 
 export const getRouteForItinerary = async (
 	{ itinerary }: GetRouteForItineraryInput,
-	{ fetchRoute, provider }: GetRouteForItineraryDeps
+	{ provider }: GetRouteForItineraryDeps
 ): Promise<NormalizedGeometry> => {
 	let geometry: NormalizedGeometry
 	const itineraryId = itinerary.itineraryId
@@ -53,7 +53,13 @@ export const getRouteForItinerary = async (
 	const controller = new AbortController()
 	currentAbortController = controller
 
-	const request = await fetchRoute(points, controller.signal)
+	const request = await fetchRoute(
+		{
+			points,
+			signal: controller.signal,
+		},
+		provider
+	)
 
 	if (provider === 'google') {
 		const googleRequest = request as GoogleGeometryInput
