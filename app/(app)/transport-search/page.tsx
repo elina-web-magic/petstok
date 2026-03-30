@@ -1,7 +1,8 @@
 'use client'
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
+import { Spinner } from '@/components/ui/spinner'
 import { TransportSearchForm } from '@/features/transport-search/components/TransportSearchForm'
 import { TransportSearchWorkbench } from '@/features/transport-search/components/TransportSearchWorkbench'
 import { useTransportSearch } from '@/features/transport-search/hooks/use-transport-search'
@@ -15,7 +16,7 @@ const DEFAULT_SEARCH = {
 	passengers: 1,
 }
 
-const TransportSearchPage = () => {
+const TransportSearchContent = () => {
 	const browserSearchParams = useSearchParams()
 	const pathname = usePathname()
 	const router = useRouter()
@@ -77,6 +78,20 @@ const TransportSearchPage = () => {
 				</div>
 			</div>
 		</div>
+	)
+}
+
+const TransportSearchPage = () => {
+	return (
+		<Suspense
+			fallback={
+				<div className="flex h-screen w-full items-center justify-center">
+					<Spinner />
+				</div>
+			}
+		>
+			<TransportSearchContent />
+		</Suspense>
 	)
 }
 
