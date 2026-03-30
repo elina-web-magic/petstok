@@ -1,32 +1,14 @@
+import { adaptGeometry } from '../adapters/geometry-adapter'
 import { fetchRoute } from '../api/fetch-route'
-import type { MapProviders } from '../types'
-import type { NormalizedItinerary } from '../types/normalized-transport'
-import { buildRoutePayload } from './build-route-payload'
-import {
-	adaptGeometry,
-	type GoogleGeometryInput,
-	type MapboxGeometryInput,
-} from './geometry-adapter'
+import { buildRoutePayload } from '../builders/build-route-payload'
+import type {
+	GetRouteForItineraryDeps,
+	GetRouteForItineraryInput,
+	GoogleGeometryInput,
+	MapboxGeometryInput,
+	NormalizedGeometry,
+} from '../types'
 import { getCachedRoute, setCachedRoute } from './route-cache'
-
-type RoutePoint = {
-	lat: number
-	lng: number
-}
-
-type NormalizedGeometry = {
-	points: RoutePoint[]
-}
-
-type GetRouteForItineraryInput = {
-	itinerary: NormalizedItinerary
-}
-
-type GetRouteForItineraryDeps = {
-	provider: MapProviders
-}
-
-let currentAbortController: AbortController | null = null
 
 export const getRouteForItinerary = async (
 	{ itinerary }: GetRouteForItineraryInput,
@@ -46,12 +28,7 @@ export const getRouteForItinerary = async (
 		}
 	}
 
-	if (currentAbortController) {
-		currentAbortController.abort()
-	}
-
 	const controller = new AbortController()
-	currentAbortController = controller
 
 	const request = await fetchRoute(
 		{

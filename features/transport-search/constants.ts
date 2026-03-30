@@ -18,3 +18,4 @@ export const MS_IN_HOUR = 60 * MS_IN_MINUTE
 export const MS_IN_DAY = 24 * MS_IN_HOUR
 
 export const PROVIDER_TIMEOUT_MS = 4 * MS_IN_SECOND
+export const STALE_TIME = MS_IN_MINUTE * 5

@@ -1,6 +1,31 @@
 import { apiClient } from '@/lib/api/client'
-import type { GoogleGeometryInput } from '../lib/geometry-adapter'
-import type { RouteRequestProps } from '../types'
+import type { GoogleGeometryInput, RouteRequestProps } from '../types'
+
+type LatLng = {
+	latitude: number
+	longitude: number
+}
+
+type Waypoint = {
+	location: {
+		latLng: LatLng
+	}
+}
+
+type GoogleRoutesRequest = {
+	origin: Waypoint
+	destination: Waypoint
+	intermediates?: Waypoint[]
+	travelMode: 'DRIVE' | 'BICYCLE' | 'WALK' | 'TWO_WHEELER'
+}
+
+type GoogleRoutesResponse = {
+	routes: {
+		polyline: {
+			encodedPolyline: string
+		}
+	}[]
+}
 
 export const fetchRouteGoogle = async (props: RouteRequestProps): Promise<GoogleGeometryInput> => {
 	const { points, signal } = props
@@ -22,32 +47,33 @@ export const fetchRouteGoogle = async (props: RouteRequestProps): Promise<Google
 		throw new Error('Map Provider key is not defined')
 	}
 
-	const response = await apiClient(url, {
+	const requestBody: GoogleRoutesRequest = {
+		origin: { location: { latLng: { latitude: origin.lat, longitude: origin.lng } } },
+		destination: {
+			location: { latLng: { latitude: destination.lat, longitude: destination.lng } },
+		},
+		travelMode: 'DRIVE',
+	}
+
+	if (intermediates.length > 0) {
+		requestBody.intermediates = intermediates.map((p) => ({
+			location: { latLng: { latitude: p.lat, longitude: p.lng } },
+		}))
+	}
+
+	const data = await apiClient<GoogleRoutesResponse>(url, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 			'X-Goog-Api-Key': apiKey,
-			'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline',
+			'X-Goog-FieldMask': 'routes.polyline.encodedPolyline',
 		},
-		body: JSON.stringify({
-			origin: { location: { latLng: { latitude: origin.lat, longitude: origin.lng } } },
-			destination: {
-				location: { latLng: { latitude: destination.lat, longitude: destination.lng } },
-			},
-			intermediates: intermediates.map((p) => ({
-				location: { latLng: { latitude: p.lat, longitude: p.lng } },
-			})),
-			travelMode: 'DRIVE',
-		}),
+		body: JSON.stringify(requestBody),
 		signal,
 	})
 
-	const data = response as {
-		routes: {
-			polyline: {
-				encodedPolyline: string
-			}
-		}[]
+	if (!data.routes || data.routes.length === 0) {
+		return { encodedPolyline: '' }
 	}
 
 	return {

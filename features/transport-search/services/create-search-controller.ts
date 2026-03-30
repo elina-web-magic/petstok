@@ -1,5 +1,5 @@
-import { createRequestId } from './create-request-id'
-import { shouldApplySearchResponse } from './should-apply-search-response'
+import { createRequestId } from '../lib/create-request-id'
+import { shouldApplySearchResponse } from '../lib/should-apply-search-response'
 
 let currentAbortController: AbortController | null = null
 let latestRequestId: string | null = null

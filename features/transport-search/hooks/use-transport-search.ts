@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { createTransportSearchController } from '../lib/create-transport-search-controller'
+import { createTransportSearchController } from '../services/create-transport-search-controller'
 import type { TransportSearchParams } from '../types'
 
 export const useTransportSearch = (params: TransportSearchParams) => {

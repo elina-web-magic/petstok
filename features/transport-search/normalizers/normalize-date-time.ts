@@ -1,11 +1,5 @@
 import { MS_IN_DAY, MS_IN_HOUR, MS_IN_MINUTE, MS_IN_SECOND } from '../constants'
-import type { NormalizedDateTime } from '../types/normalized-transport'
-
-type NormalizeDateTimeInput = {
-	raw: string
-	timezone?: string
-	baseDateIso?: string
-}
+import type { NormalizeDateTimeInput, NormalizedDateTime } from '../types'
 
 const getDayIndex = (d: Date, tz: string) => {
 	const parts = new Intl.DateTimeFormat('en-GB', {

@@ -1,11 +1,4 @@
-type RoutePoint = {
-	lat: number
-	lng: number
-}
-
-type NormalizedGeometry = {
-	points: RoutePoint[]
-}
+import type { NormalizedGeometry } from '../types'
 
 const routeCache = new Map<string, NormalizedGeometry>()
 

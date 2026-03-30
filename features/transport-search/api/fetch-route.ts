@@ -1,5 +1,9 @@
-import type { GoogleGeometryInput, MapboxGeometryInput } from '../lib/geometry-adapter'
-import type { MapProviders, RouteRequestProps } from '../types'
+import type {
+	GoogleGeometryInput,
+	MapboxGeometryInput,
+	MapProviders,
+	RouteRequestProps,
+} from '../types'
 import { fetchRouteGoogle } from './fetch-route-google'
 import { fetchRouteMapbox } from './fetch-route-mapbox'
 

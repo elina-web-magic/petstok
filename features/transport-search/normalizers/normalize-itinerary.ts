@@ -1,10 +1,5 @@
 import { MS_IN_MINUTE } from '../constants'
-import type { NormalizedItinerary, NormalizedTransportSegment } from '../types/normalized-transport'
-
-type NormalizeItineraryInput = {
-	itineraryId: string
-	segments: NormalizedTransportSegment[]
-}
+import type { NormalizedItinerary, NormalizeItineraryInput } from '../types'
 
 export const normalizeItinerary = ({
 	itineraryId,
