@@ -7,7 +7,7 @@ import type { NormalizedGeometry } from '../types'
 const RouteMap = ({ points }: NormalizedGeometry) => {
 	if (!points.length) {
 		return (
-			<div className="relative w-full h-[300px] rounded-xl overflow-hidden border border-border bg-muted/30">
+			<div className="RouteMap relative w-full h-[550px] rounded-xl overflow-hidden border border-border bg-muted/30">
 				{/* Decorative Mock Map Pattern (CSS/SVG) to avoid Leaflet conflicts */}
 				<div
 					className="absolute inset-0 opacity-[0.03] grayscale pointer-events-none"
@@ -40,7 +40,7 @@ const RouteMap = ({ points }: NormalizedGeometry) => {
 
 	if (!hasValidCoordinates) {
 		return (
-			<div className="flex flex-col items-center justify-center w-full h-[300px] gap-3 rounded-xl border border-destructive/20 bg-destructive/5 text-destructive p-6 text-center">
+			<div className="flex flex-col items-center justify-center w-full h-[550px] gap-3 rounded-xl border border-destructive/20 bg-destructive/5 text-destructive p-6 text-center">
 				<AlertCircle className="w-8 h-8" />
 				<div className="space-y-1">
 					<p className="font-bold text-sm tracking-tight uppercase italic">Invalid map data</p>
@@ -57,7 +57,7 @@ const RouteMap = ({ points }: NormalizedGeometry) => {
 	const positions = points.map((p) => [p.lat, p.lng] as [number, number])
 
 	return (
-		<div className="w-full h-[300px] rounded overflow-hidden">
+		<div className="w-full h-[550px] rounded overflow-hidden">
 			<MapContainer
 				center={[center.lat, center.lng]}
 				zoom={6}

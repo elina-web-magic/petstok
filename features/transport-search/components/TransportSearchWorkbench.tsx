@@ -3,6 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { BusFront, Clock3, Route, Ship, Ticket, TrainFront } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { STALE_TIME } from '../constants'
 import { useRoute } from '../hooks/use-route'
+import { getSearchParamsFromUrl } from '../lib/get-search-params-from-url'
 import type {
 	NormalizedGeometry,
 	NormalizedItinerary,
@@ -29,7 +31,7 @@ type TransportSearchWorkbenchProps = {
 const RouteMap = dynamic<NormalizedGeometry>(() => import('./RouteMap'), {
 	ssr: false,
 	loading: () => (
-		<div className="flex h-[300px] w-full items-center justify-center bg-muted/20">
+		<div className="flex h-[550px] w-full items-center justify-center bg-muted/20">
 			<Spinner />
 		</div>
 	),
@@ -50,6 +52,8 @@ const formatTimeLabel = (value: string): string => {
 
 export const TransportSearchWorkbench = (props: TransportSearchWorkbenchProps) => {
 	const { results, isLoading, isError } = props
+	const searchParams = useSearchParams()
+	const { from, to } = getSearchParamsFromUrl(searchParams)
 	const [itinerary, setItinerary] = useState<NormalizedItinerary | null>(null)
 	const [errorId, setErrorId] = useState<string | null>(null)
 	const queryClient = useQueryClient()
@@ -135,7 +139,7 @@ export const TransportSearchWorkbench = (props: TransportSearchWorkbenchProps) =
 									<div className="TransportSearchWorkbench__ResultRouteRow flex items-center gap-2">
 										<Route className="h-4 w-4 text-muted-foreground" />
 										<p className="TransportSearchWorkbench__ResultRouteText text-sm font-semibold">
-											{item.title}
+											{from} → {to}
 										</p>
 									</div>
 									<p className="TransportSearchWorkbench__ResultSubtext mt-1 text-xs text-muted-foreground">

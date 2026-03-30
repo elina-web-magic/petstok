@@ -2,6 +2,7 @@ export type TransportSearchFormValue = {
 	from: string
 	to: string
 	date: string
+	passengers: number
 }
 
 export type TransportSearchParams = {
