@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { getRouteForItinerary } from '@/features/transport-search/lib/get-route-for-itinerary'
+import { getRouteForItinerary } from '@/features/transport-search/services/get-route-for-itinerary'
 import type { NormalizedItinerary } from '@/features/transport-search/types'
 
 export const POST = async (req: NextRequest) => {
@@ -26,8 +26,6 @@ export const POST = async (req: NextRequest) => {
 			stack: error instanceof Error ? error.stack : undefined,
 			...(typeof error === 'object' ? error : {}),
 		}
-
-		console.error('Route API error trace:', JSON.stringify(errorInfo, null, 2))
 
 		return NextResponse.json(
 			{

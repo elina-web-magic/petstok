@@ -1,5 +1,3 @@
-import { normalizeItinerary } from '../lib/normalize-itinerary'
-import { normalizeTransportSegment } from '../lib/normalize-transport-segment'
 import { resolveLocation } from '../lib/resolve-location'
 import type {
 	NormalizedItinerary,
@@ -7,6 +5,8 @@ import type {
 	TrainRoutesApiResponse,
 	TransportSearchResult,
 } from '../types'
+import { normalizeItinerary } from './normalize-itinerary'
+import { normalizeTransportSegment } from './normalize-transport-segment'
 
 export const normalizeTrainRoutes = (
 	response: TrainRoutesApiResponse

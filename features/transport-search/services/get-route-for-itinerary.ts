@@ -1,4 +1,6 @@
+import { adaptGeometry } from '../adapters/geometry-adapter'
 import { fetchRoute } from '../api/fetch-route'
+import { buildRoutePayload } from '../builders/build-route-payload'
 import type {
 	GetRouteForItineraryDeps,
 	GetRouteForItineraryInput,
@@ -6,8 +8,6 @@ import type {
 	MapboxGeometryInput,
 	NormalizedGeometry,
 } from '../types'
-import { buildRoutePayload } from './build-route-payload'
-import { adaptGeometry } from './geometry-adapter'
 import { getCachedRoute, setCachedRoute } from './route-cache'
 
 export const getRouteForItinerary = async (

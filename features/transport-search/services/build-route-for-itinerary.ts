@@ -1,12 +1,12 @@
 import { Logger } from '@/lib/logger/logger'
 import { ConsoleSink } from '@/lib/logger/sinks'
-import { getRouteForItinerary } from '../lib/get-route-for-itinerary'
 import type {
 	BuildRouteForItineraryInput,
 	BuildRouteForItineraryResult,
 	NormalizedItinerary,
 	TransportProvider,
 } from '../types'
+import { getRouteForItinerary } from './get-route-for-itinerary'
 import { getProviderCache } from './provider-cache'
 
 const logger = new Logger({

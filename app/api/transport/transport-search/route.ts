@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { getRouteForItinerary } from '@/features/transport-search/lib/get-route-for-itinerary'
-import { mergeProviderItineraries } from '@/features/transport-search/lib/merge-provider-itineraries'
-import { normalizeSearchResponse } from '@/features/transport-search/lib/normalize-search-response'
+import { normalizeSearchResponse } from '@/features/transport-search/normalizers/normalize-search-response'
+import { getRouteForItinerary } from '@/features/transport-search/services/get-route-for-itinerary'
+import { mergeProviderItineraries } from '@/features/transport-search/services/merge-provider-itineraries'
 
 export const POST = async (req: NextRequest) => {
 	const body = await req.json()

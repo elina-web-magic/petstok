@@ -1,6 +1,6 @@
-import { searchTransportRoutes } from '../services/search-orchestrator'
 import type { TransportSearchParams, TransportSearchResponse } from '../types'
 import { createSearchController } from './create-search-controller'
+import { searchTransportRoutes } from './search-orchestrator'
 
 export const createTransportSearchController = () => {
 	const controller = createSearchController<TransportSearchParams, TransportSearchResponse>()

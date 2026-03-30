@@ -4,7 +4,7 @@ import { AlertCircle, MapPinOff } from 'lucide-react'
 import { MapContainer, Polyline, TileLayer } from 'react-leaflet'
 import type { NormalizedGeometry } from '../types'
 
-export const RouteMap = ({ points }: NormalizedGeometry) => {
+const RouteMap = ({ points }: NormalizedGeometry) => {
 	if (!points.length) {
 		return (
 			<div className="relative w-full h-[300px] rounded-xl overflow-hidden border border-border bg-muted/30">

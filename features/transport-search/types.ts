@@ -244,10 +244,6 @@ export type BuildRouteForItineraryResult = {
 	}
 }
 
-export type RouteResponse = Omit<BuildRouteForItineraryResult, 'segments'> & {
-	segments: unknown[]
-}
-
 export type ProviderCacheEntry = {
 	results: TransportSearchResult[]
 	itineraries: NormalizedItinerary[]
