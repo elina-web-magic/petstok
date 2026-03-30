@@ -1,9 +1,4 @@
-import type { SearchRequestId } from '../types/normalized-transport'
-
-type ShouldApplySearchResponseParams = {
-	responseRequestId: SearchRequestId
-	latestRequestId: SearchRequestId | null
-}
+import type { ShouldApplySearchResponseParams } from '../types'
 
 export const shouldApplySearchResponse = ({
 	responseRequestId,

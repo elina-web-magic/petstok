@@ -1,32 +1,26 @@
 'use client'
 
-type Point = {
-	lat: number
-	lng: number
-}
+import type { NormalizedGeometry, RoutePoint } from '../types'
 
-type Props = {
-	points: Point[]
-}
+const normalizePoints = (props: RoutePoint[]) => {
+	if (props.length === 0) return []
 
-const normalizePoints = (points: Point[]) => {
-	if (points.length === 0) return []
-
-	const lats = points.map((p) => p.lat)
-	const lngs = points.map((p) => p.lng)
+	const lats = props.map((p) => p.lat)
+	const lngs = props.map((p) => p.lng)
 
 	const minLat = Math.min(...lats)
 	const maxLat = Math.max(...lats)
 	const minLng = Math.min(...lngs)
 	const maxLng = Math.max(...lngs)
 
-	return points.map((p) => ({
+	return props.map((p) => ({
 		x: ((p.lng - minLng) / (maxLng - minLng || 1)) * 100,
 		y: ((p.lat - minLat) / (maxLat - minLat || 1)) * 100,
 	}))
 }
 
-export const RouteMap = ({ points }: Props) => {
+export const RouteMap = (props: NormalizedGeometry) => {
+	const { points } = props
 	const normalized = normalizePoints(points)
 
 	const path = normalized.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${100 - p.y}`).join(' ')

@@ -1,17 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-
-type RoutePoint = {
-	lat: number
-	lng: number
-}
-
-type RouteResponse = {
-	itineraryId: string
-	segments: unknown[]
-	geometry: {
-		points: RoutePoint[]
-	}
-}
+import type { RouteResponse } from '../types'
 
 type UseRouteProps = {
 	itineraryId: string | null

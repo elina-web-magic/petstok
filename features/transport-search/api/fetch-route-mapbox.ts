@@ -1,6 +1,5 @@
 import { apiClient } from '@/lib/api/client'
-import type { MapboxGeometryInput } from '../lib/geometry-adapter'
-import type { RouteRequestProps } from '../types'
+import type { MapboxGeometryInput, RouteRequestProps } from '../types'
 
 export const fetchRouteMapbox = async (props: RouteRequestProps): Promise<MapboxGeometryInput> => {
 	const { points, signal } = props

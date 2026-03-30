@@ -1,21 +1,13 @@
 import { Logger } from '@/lib/logger/logger'
 import { ConsoleSink } from '@/lib/logger/sinks'
 import { getRouteForItinerary } from '../lib/get-route-for-itinerary'
-import type { TransportProvider } from '../types'
-import type { NormalizedItinerary } from '../types/normalized-transport'
+import type {
+	BuildRouteForItineraryInput,
+	BuildRouteForItineraryResult,
+	NormalizedItinerary,
+	TransportProvider,
+} from '../types'
 import { getProviderCache } from './provider-cache'
-
-type BuildRouteForItineraryInput = {
-	itineraryId: string
-}
-
-type BuildRouteForItineraryResult = {
-	itineraryId: string
-	segments: NormalizedItinerary['segments']
-	geometry: {
-		points: { lat: number; lng: number }[]
-	}
-}
 
 const logger = new Logger({
 	scope: 'features:transport-search:services:build-route-for-itinerary',

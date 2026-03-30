@@ -1,9 +1,9 @@
-import type { RoutePoint } from '../types'
-import type { NormalizedItinerary } from '../types/normalized-transport'
-
-type BuildRoutePayloadResult = {
-	points: RoutePoint[]
-}
+import type {
+	BuildRoutePayloadResult,
+	NormalizedItinerary,
+	RawRoutePoint,
+	RoutePoint,
+} from '../types'
 
 export const buildRoutePayload = ({
 	itinerary,
@@ -11,7 +11,7 @@ export const buildRoutePayload = ({
 	itinerary: NormalizedItinerary
 }): BuildRoutePayloadResult => {
 	const points: RoutePoint[] = []
-	const addPoint = (loc: { lat: number | null; lng: number | null }) => {
+	const addPoint = (loc: RawRoutePoint) => {
 		if (typeof loc.lat !== 'number' || typeof loc.lng !== 'number') return
 		const lastPoint = points[points.length - 1]
 

@@ -1,16 +1,71 @@
-import type { NormalizedItinerary } from './types/normalized-transport'
-
-export type TransportSearchParams = {
+export type TransportSearchFormValue = {
 	from: string
 	to: string
 	date: string
-	passengers: number
 }
 
-export type TrainSearchParams = {
-	from: string
-	to: string
-	date: string
+export type TransportSearchParams = {
+	passengers: number
+} & TransportSearchFormValue
+
+export type RawRoutePoint = {
+	lat: number | null
+	lng: number | null
+}
+
+export type RoutePoint = {
+	lat: number
+	lng: number
+}
+
+export type GoogleGeometryInput = {
+	encodedPolyline: string
+}
+
+export type MapboxGeometryInput = {
+	coordinates: [number, number][]
+}
+
+export type GetRouteForItineraryInput = {
+	itinerary: NormalizedItinerary
+}
+
+export type GetRouteForItineraryDeps = {
+	provider: MapProviders
+}
+
+export type AdaptGeometryInput =
+	| {
+			provider: 'google'
+			geometry: GoogleGeometryInput
+	  }
+	| {
+			provider: 'mapbox'
+			geometry: MapboxGeometryInput
+	  }
+
+export type ShouldApplySearchResponseParams = {
+	responseRequestId: SearchRequestId
+	latestRequestId: SearchRequestId | null
+}
+
+export type MergeProviderItinerariesInput = {
+	providers: ProviderMergeItem[]
+	sortBy: 'fastest' | 'earliest-departure'
+}
+
+export type MergeProviderItinerariesResult = {
+	itineraries: NormalizedItinerary[]
+	partial: boolean
+	failedProviders: string[]
+	timedOutProviders: string[]
+}
+
+export type NormalizedGeometry = {
+	points: RoutePoint[]
+}
+
+export type TrainSearchParams = Omit<TransportSearchParams, 'passengers'> & {
 	passengers: string
 }
 
@@ -81,6 +136,25 @@ export type TransportSearchResult = {
 	priceLabel: string
 }
 
+export type NormalizeItineraryInput = {
+	itineraryId: string
+	segments: NormalizedTransportSegment[]
+}
+
+export type NormalizeDateTimeInput = {
+	raw: string
+	timezone?: string
+	baseDateIso?: string
+}
+
+export type NormalizedItinerary = {
+	itineraryId: string
+	segments: NormalizedTransportSegment[]
+	totalDurationMinutes: number
+}
+
+export type SearchRequestId = string
+
 export type ProviderNormalizedSearchData = {
 	results: TransportSearchResult[]
 	itineraries: NormalizedItinerary[]
@@ -99,11 +173,6 @@ export type ProviderSearchTask = {
 	request: Promise<ProviderNormalizedSearchData>
 }
 
-export type RoutePoint = {
-	lat: number
-	lng: number
-}
-
 export type MapProviders = 'google' | 'mapbox'
 
 export type RouteRequestProps = {
@@ -118,4 +187,72 @@ export type ProviderMergeItem = {
 	status: ProviderMergeStatus
 	itineraries: NormalizedItinerary[]
 	errorMessage?: string
+}
+
+export type NormalizedDateTime = {
+	iso: string
+	timezone: string
+	localDisplay: string
+	dayOffset: number
+}
+
+export type NormalizedLocation = {
+	id: string
+	name: string
+} & RawRoutePoint
+
+export type NormalizedTransportSegment = {
+	provider: string
+	segmentId: string
+	origin: NormalizedLocation
+	destination: NormalizedLocation
+	departureAt: NormalizedDateTime
+	arrivalAt: NormalizedDateTime
+	durationMinutes: number
+}
+
+type RawProviderSegment = {
+	id: string
+	origin: NormalizedLocation
+	destination: NormalizedLocation
+	departureAt: string
+	arrivalAt: string
+	departureTimezone?: string
+	arrivalTimezone?: string
+}
+
+export type RawProviderItinerary = {
+	id: string
+	segments: RawProviderSegment[]
+}
+
+export type NormalizeSearchResponseInput = {
+	provider: string
+	itineraries: RawProviderItinerary[]
+}
+
+export type BuildRouteForItineraryInput = {
+	itineraryId: string
+}
+
+export type BuildRouteForItineraryResult = {
+	itineraryId: string
+	segments: NormalizedItinerary['segments']
+	geometry: {
+		points: RoutePoint[]
+	}
+}
+
+export type RouteResponse = Omit<BuildRouteForItineraryResult, 'segments'> & {
+	segments: unknown[]
+}
+
+export type ProviderCacheEntry = {
+	results: TransportSearchResult[]
+	itineraries: NormalizedItinerary[]
+	updatedAt: number
+}
+
+export type BuildRoutePayloadResult = {
+	points: RoutePoint[]
 }

@@ -1,33 +1,6 @@
-import type { NormalizedItinerary } from '../types/normalized-transport'
+import type { NormalizedItinerary, NormalizeSearchResponseInput } from '../types'
 import { normalizeItinerary } from './normalize-itinerary'
 import { normalizeTransportSegment } from './normalize-transport-segment'
-
-type RawProviderLocation = {
-	id?: string
-	name?: string
-	lat?: number
-	lng?: number
-}
-
-type RawProviderSegment = {
-	id: string
-	origin: RawProviderLocation
-	destination: RawProviderLocation
-	departureAt: string
-	arrivalAt: string
-	departureTimezone?: string
-	arrivalTimezone?: string
-}
-
-type RawProviderItinerary = {
-	id: string
-	segments: RawProviderSegment[]
-}
-
-type NormalizeSearchResponseInput = {
-	provider: string
-	itineraries: RawProviderItinerary[]
-}
 
 export const normalizeSearchResponse = ({
 	provider,

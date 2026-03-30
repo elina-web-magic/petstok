@@ -1,11 +1,9 @@
-import type { TransportProvider, TransportSearchResult } from '../types'
-import type { NormalizedItinerary } from '../types/normalized-transport'
-
-type ProviderCacheEntry = {
-	results: TransportSearchResult[]
-	itineraries: NormalizedItinerary[]
-	updatedAt: number
-}
+import type {
+	NormalizedItinerary,
+	ProviderCacheEntry,
+	TransportProvider,
+	TransportSearchResult,
+} from '../types'
 
 const providerCache = new Map<TransportProvider, ProviderCacheEntry>()
 

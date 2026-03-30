@@ -1,17 +1,4 @@
-import type { ProviderMergeItem } from '../types'
-import type { NormalizedItinerary } from '../types/normalized-transport'
-
-type MergeProviderItinerariesInput = {
-	providers: ProviderMergeItem[]
-	sortBy: 'fastest' | 'earliest-departure'
-}
-
-type MergeProviderItinerariesResult = {
-	itineraries: NormalizedItinerary[]
-	partial: boolean
-	failedProviders: string[]
-	timedOutProviders: string[]
-}
+import type { MergeProviderItinerariesInput, MergeProviderItinerariesResult } from '../types'
 
 export const mergeProviderItineraries = ({
 	providers,

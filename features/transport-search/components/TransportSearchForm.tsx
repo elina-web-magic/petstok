@@ -3,12 +3,7 @@
 import { ArrowLeftRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-
-type TransportSearchFormValue = {
-	from: string
-	to: string
-	date: string
-}
+import type { TransportSearchFormValue } from '../types'
 
 type TransportSearchFormProps = {
 	value: TransportSearchFormValue

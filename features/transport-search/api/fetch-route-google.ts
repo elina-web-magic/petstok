@@ -1,6 +1,5 @@
 import { apiClient } from '@/lib/api/client'
-import type { GoogleGeometryInput } from '../lib/geometry-adapter'
-import type { RouteRequestProps } from '../types'
+import type { GoogleGeometryInput, RouteRequestProps } from '../types'
 
 export const fetchRouteGoogle = async (props: RouteRequestProps): Promise<GoogleGeometryInput> => {
 	const { points, signal } = props

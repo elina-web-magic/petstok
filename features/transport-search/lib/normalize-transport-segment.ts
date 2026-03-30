@@ -1,20 +1,13 @@
 import { MS_IN_MINUTE } from '../constants'
-import type { NormalizedTransportSegment } from '../types/normalized-transport'
+import type { NormalizedLocation, NormalizedTransportSegment } from '../types'
 import { normalizeDateTime } from './normalize-date-time'
 import { normalizeLocation } from './normalize-location'
-
-type RawTransportLocation = {
-	id?: string
-	name?: string
-	lat?: number
-	lng?: number
-}
 
 type NormalizeTransportSegmentInput = {
 	provider: string
 	segmentId: string
-	origin: RawTransportLocation
-	destination: RawTransportLocation
+	origin: NormalizedLocation
+	destination: NormalizedLocation
 	departureAtRaw: string
 	arrivalAtRaw: string
 	departureTimezone?: string

@@ -1,29 +1,4 @@
-type RoutePoint = {
-	lat: number
-	lng: number
-}
-
-type NormalizedGeometry = {
-	points: RoutePoint[]
-}
-
-export type GoogleGeometryInput = {
-	encodedPolyline: string
-}
-
-export type MapboxGeometryInput = {
-	coordinates: [number, number][]
-}
-
-type AdaptGeometryInput =
-	| {
-			provider: 'google'
-			geometry: GoogleGeometryInput
-	  }
-	| {
-			provider: 'mapbox'
-			geometry: MapboxGeometryInput
-	  }
+import type { AdaptGeometryInput, NormalizedGeometry } from '../types'
 
 export const adaptGeometry = (props: AdaptGeometryInput): NormalizedGeometry => {
 	const { provider, geometry } = props
