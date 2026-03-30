@@ -2,22 +2,38 @@
 
 import { useQueryClient } from '@tanstack/react-query'
 import { BusFront, Clock3, Route, Ship, Ticket, TrainFront } from 'lucide-react'
-import { useState } from 'react'
+import dynamic from 'next/dynamic'
+import { useEffect, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { Spinner } from '@/components/ui/spinner'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { STALE_TIME } from '../constants'
 import { useRoute } from '../hooks/use-route'
-import type { TransportSearchResult } from '../types'
-import { RouteMap } from './RouteMap'
+import type {
+	NormalizedGeometry,
+	NormalizedItinerary,
+	NormalizedTransportSegment,
+	TransportSearchResult,
+} from '../types'
 
 type TransportSearchWorkbenchProps = {
 	results: TransportSearchResult[]
 	isLoading: boolean
 	isError: boolean
 }
+
+const RouteMap = dynamic<NormalizedGeometry>(() => import('./RouteMap'), {
+	ssr: false,
+	loading: () => (
+		<div className="flex h-[300px] w-full items-center justify-center bg-muted/20">
+			<Spinner />
+		</div>
+	),
+})
 
 const formatTimeLabel = (value: string): string => {
 	const parsed = new Date(value)
@@ -34,53 +50,51 @@ const formatTimeLabel = (value: string): string => {
 
 export const TransportSearchWorkbench = (props: TransportSearchWorkbenchProps) => {
 	const { results, isLoading, isError } = props
-	const [selectedId, setSelectedId] = useState<string | null>(null)
+	const [itinerary, setItinerary] = useState<NormalizedItinerary | null>(null)
+	const [errorId, setErrorId] = useState<string | null>(null)
 	const queryClient = useQueryClient()
+
+	useEffect(() => {
+		if (errorId) {
+			const timer = setTimeout(() => setErrorId(null), 3000)
+			return () => clearTimeout(timer)
+		}
+	}, [errorId])
 
 	const {
 		data,
 		isLoading: isRouteLoading,
 		error: routeError,
 	} = useRoute({
-		itineraryId: selectedId,
+		itinerary,
 	})
 
-	const preloadRoute = async (itineraryId: string) => {
+	const preloadRoute = async (itinerary: NormalizedItinerary, resultId: string) => {
+		if (!itinerary || !itinerary.itineraryId) {
+			setErrorId(resultId)
+			return
+		}
+
+		setErrorId(null)
+
 		await queryClient.prefetchQuery({
-			queryKey: ['route', itineraryId],
+			queryKey: ['route', itinerary.itineraryId],
 			queryFn: async () => {
-				const res = await fetch(`/api/transport/route/${itineraryId}`)
+				const res = await fetch(`/api/transport/route`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ itinerary }),
+				})
 
 				if (!res.ok) {
-					return {
-						itineraryId,
-						segments: [],
-						geometry: {
-							points:
-								itineraryId === 'bus-1'
-									? [
-											{ lat: 52.52, lng: 13.405 },
-											{ lat: 52.51, lng: 13.39 },
-											{ lat: 52.5, lng: 13.37 },
-										]
-									: itineraryId === 'ferry-1'
-										? [
-												{ lat: 53.5511, lng: 9.9937 },
-												{ lat: 53.54, lng: 10.01 },
-												{ lat: 53.53, lng: 10.03 },
-											]
-										: [
-												{ lat: 48.8566, lng: 2.3522 },
-												{ lat: 49.2, lng: 4.0 },
-												{ lat: 50.1109, lng: 8.6821 },
-											],
-						},
-					}
+					throw new Error('Failed to preload route')
 				}
 
 				return res.json()
 			},
-			staleTime: 1000 * 60 * 5,
+			staleTime: STALE_TIME,
 		})
 	}
 
@@ -170,25 +184,48 @@ export const TransportSearchWorkbench = (props: TransportSearchWorkbenchProps) =
 
 							<Separator className="TransportSearchWorkbench__Separator" />
 
-							<div className="TransportSearchWorkbench__ResultActions flex items-center justify-between gap-3">
-								<Button
-									type="button"
-									className="TransportSearchWorkbench__ResultButton"
-									onMouseEnter={() => preloadRoute(item.id)}
-									onFocus={() => preloadRoute(item.id)}
-									onClick={() => setSelectedId(item.id)}
-								>
-									Select route
-								</Button>
+							<div className="TransportSearchWorkbench__ResultActions relative flex flex-col items-start pt-2">
+								{errorId === item.id && (
+									<span className="absolute -top-3 left-0 text-[10px] font-bold text-destructive uppercase tracking-tight bg-background/80 px-1 rounded">
+										Error: Itinerary ID not found
+									</span>
+								)}
+								<div className="flex items-center justify-between gap-3 w-full">
+									<Button
+										type="button"
+										className="TransportSearchWorkbench__ResultButton w-full sm:w-auto"
+										disabled={
+											isRouteLoading && itinerary?.itineraryId === item.itinerary?.itineraryId
+										}
+										onMouseEnter={() => preloadRoute(item.itinerary, item.id)}
+										onFocus={() => preloadRoute(item.itinerary, item.id)}
+										onClick={() => {
+											if (!item.itinerary) {
+												setErrorId(item.id)
+												return
+											}
+											setItinerary(item.itinerary)
+										}}
+									>
+										{isRouteLoading && itinerary?.itineraryId === item.itinerary?.itineraryId ? (
+											<>
+												<Spinner data-icon="inline-start" className="h-4 w-4" />
+												Loading...
+											</>
+										) : (
+											'Select route'
+										)}
+									</Button>
+								</div>
 							</div>
 						</CardContent>
 					</Card>
 				))}
 			</div>
 			<Dialog
-				open={Boolean(selectedId)}
+				open={Boolean(itinerary)}
 				onOpenChange={(open) => {
-					if (!open) setSelectedId(null)
+					if (!open) setItinerary(null)
 				}}
 			>
 				<DialogContent
@@ -219,16 +256,106 @@ export const TransportSearchWorkbench = (props: TransportSearchWorkbenchProps) =
 							)}
 
 							{data && (
-								<div className="flex flex-col gap-4">
-									<div className="rounded-xl overflow-hidden border border-border shadow-sm">
-										<RouteMap points={data.geometry.points} />
+								<div className="MapDetails flex flex-col gap-4">
+									<div className="grid grid-cols-3 gap-3">
+										<Card className="border-border/60 shadow-none">
+											<CardContent className="p-4">
+												<p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+													Segments
+												</p>
+												<p className="mt-2 text-lg font-semibold">{data.segments.length}</p>
+											</CardContent>
+										</Card>
+
+										<Card className="border-border/60 shadow-none">
+											<CardContent className="p-4">
+												<p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+													Route points
+												</p>
+												<p className="mt-2 text-lg font-semibold">{data.geometry.points.length}</p>
+											</CardContent>
+										</Card>
+
+										<Card className="border-border/60 shadow-none">
+											<CardContent className="p-4">
+												<p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+													Itinerary
+												</p>
+												<p className="mt-2 text-sm font-semibold uppercase tracking-widest">
+													{data.itineraryId.slice(0, 8)}
+												</p>
+											</CardContent>
+										</Card>
 									</div>
-									<div className="flex items-center justify-between px-2 pt-2 text-xs text-muted-foreground font-medium">
-										<span>Total segments: {data.segments.length}</span>
-										<span className="uppercase tracking-widest">
-											{data.itineraryId.slice(0, 8)}
-										</span>
-									</div>
+
+									<Tabs defaultValue="map" className="w-full MapDetails_Tab">
+										<TabsList className="grid w-full grid-cols-2">
+											<TabsTrigger className="MapDetails_Tab_Map" value="map">
+												Map
+											</TabsTrigger>
+											<TabsTrigger className="MapDetails_Tab_Details" value="details">
+												Details
+											</TabsTrigger>
+										</TabsList>
+
+										<TabsContent value="map" className="mt-4">
+											<div className="rounded-xl overflow-hidden border border-border shadow-sm">
+												<RouteMap points={data.geometry.points} />
+											</div>
+										</TabsContent>
+
+										<TabsContent value="details" className="mt-4 MapDetails_TabContent">
+											<Card className="border-border/60 shadow-none">
+												<CardContent className="p-4">
+													<div className="flex flex-col gap-4">
+														{data.segments.map(
+															(segment: NormalizedTransportSegment, index: number) => (
+																<div
+																	key={segment.segmentId}
+																	className={`MapDetails_Tab flex flex-col gap-2 ${segment.segmentId}`}
+																>
+																	<div className="flex items-center justify-between gap-3">
+																		<div>
+																			<p className="text-sm font-semibold">
+																				{segment.origin.name} → {segment.destination.name}
+																			</p>
+																			<p className="text-xs text-muted-foreground uppercase tracking-wide">
+																				{segment.provider}
+																			</p>
+																		</div>
+
+																		<Badge variant="outline">{segment.durationMinutes} min</Badge>
+																	</div>
+
+																	<div className="grid grid-cols-2 gap-3 text-sm">
+																		<div className="rounded-md bg-muted/40 p-3">
+																			<p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+																				Departure
+																			</p>
+																			<p className="mt-1 font-medium">
+																				{segment.departureAt.localDisplay}
+																			</p>
+																		</div>
+
+																		<div className="rounded-md bg-muted/40 p-3">
+																			<p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+																				Arrival
+																			</p>
+																			<p className="mt-1 font-medium">
+																				{segment.arrivalAt.localDisplay}
+																			</p>
+																		</div>
+																	</div>
+
+																	{index < data.segments.length - 1 && <Separator />}
+																</div>
+															)
+														)}
+													</div>
+												</CardContent>
+											</Card>
+										</TabsContent>
+									</Tabs>
 								</div>
 							)}
 						</div>

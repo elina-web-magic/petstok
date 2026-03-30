@@ -134,6 +134,7 @@ export type TransportSearchResult = {
 	departureTime: string
 	arrivalTime: string
 	priceLabel: string
+	itinerary: NormalizedItinerary
 }
 
 export type NormalizeItineraryInput = {

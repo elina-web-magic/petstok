@@ -1,3 +1,4 @@
+import polyline from '@mapbox/polyline'
 import type { AdaptGeometryInput, NormalizedGeometry } from '../types'
 
 export const adaptGeometry = (props: AdaptGeometryInput): NormalizedGeometry => {
@@ -5,7 +6,10 @@ export const adaptGeometry = (props: AdaptGeometryInput): NormalizedGeometry => 
 
 	if (provider === 'google') {
 		return {
-			points: [],
+			points: polyline.decode(geometry.encodedPolyline).map(([lat, lng]) => ({
+				lat,
+				lng,
+			})),
 		}
 	}
 

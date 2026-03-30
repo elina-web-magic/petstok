@@ -10,8 +10,6 @@ import { buildRoutePayload } from './build-route-payload'
 import { adaptGeometry } from './geometry-adapter'
 import { getCachedRoute, setCachedRoute } from './route-cache'
 
-let currentAbortController: AbortController | null = null
-
 export const getRouteForItinerary = async (
 	{ itinerary }: GetRouteForItineraryInput,
 	{ provider }: GetRouteForItineraryDeps
@@ -30,12 +28,7 @@ export const getRouteForItinerary = async (
 		}
 	}
 
-	if (currentAbortController) {
-		currentAbortController.abort()
-	}
-
 	const controller = new AbortController()
-	currentAbortController = controller
 
 	const request = await fetchRoute(
 		{

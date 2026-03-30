@@ -41,6 +41,7 @@ export const normalizeTrainRoutes = (
 			departureTime: item.depTime,
 			arrivalTime: item.arrTime,
 			priceLabel: `€ ${item.price}`,
+			itinerary,
 		}
 	})
 

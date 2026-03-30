@@ -42,6 +42,7 @@ export const normalizeFerryRoutes = (
 			departureTime: item.start,
 			arrivalTime: item.end,
 			priceLabel: item.fareText,
+			itinerary,
 		}
 	})
 

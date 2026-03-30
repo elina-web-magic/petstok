@@ -1,26 +1,21 @@
 import type { NormalizedLocation } from '../types'
 
-const LOCATION_COORDINATES: Record<string, { lat: number; lng: number }> = {
-	'hamburg port': { lat: 53.5461, lng: 9.9661 },
-	'copenhagen port': { lat: 55.6929, lng: 12.5993 },
-	'berlin hbf': { lat: 52.5251, lng: 13.3694 },
-	'munich hbf': { lat: 48.1402, lng: 11.5586 },
-	'paris gare du nord': { lat: 48.8809, lng: 2.3553 },
-	'london st pancras': { lat: 51.5319, lng: -0.1263 },
+const LOCATION_COORDS: Record<string, { lat: number; lng: number }> = {
+	berlin: { lat: 52.52, lng: 13.405 },
+	paris: { lat: 48.8566, lng: 2.3522 },
+	munich: { lat: 48.1351, lng: 11.582 },
+	hamburg: { lat: 53.5511, lng: 9.9937 },
 }
 
-const toLocationId = (value: string): string => {
-	return value.trim().toLowerCase().replace(/\s+/g, '-')
-}
+const normalizeKey = (value: string) => value.trim().toLowerCase()
 
 export const resolveLocation = (name: string): NormalizedLocation => {
-	const normalizedName = name.trim()
-	const key = normalizedName.toLowerCase()
-	const coords = LOCATION_COORDINATES[key]
+	const key = normalizeKey(name)
+	const coords = LOCATION_COORDS[key]
 
 	return {
-		id: toLocationId(normalizedName),
-		name: normalizedName,
+		id: key,
+		name,
 		lat: coords?.lat ?? null,
 		lng: coords?.lng ?? null,
 	}

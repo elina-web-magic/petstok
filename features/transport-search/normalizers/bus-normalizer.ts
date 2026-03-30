@@ -41,6 +41,7 @@ export const normalizeBusRoutes = (
 			priceLabel: `€ ${item.price_label}`,
 			arrivalTime: item.arrival_time,
 			departureTime: item.departure_time,
+			itinerary,
 		}
 	})
 
